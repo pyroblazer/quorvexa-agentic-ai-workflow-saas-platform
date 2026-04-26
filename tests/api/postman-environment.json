@@ -1,0 +1,8 @@
+{
+  "name": "Quorvexa Local",
+  "values": [
+    { "key": "baseUrl", "value": "http://localhost:4000", "enabled": true },
+    { "key": "testEmail", "value": "admin@quorvexa.dev", "enabled": true },
+    { "key": "testPassword", "value": "Admin@Quorvexa123", "enabled": true }
+  ]
+}

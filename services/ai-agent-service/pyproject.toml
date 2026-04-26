@@ -1,0 +1,64 @@
+[tool.poetry]
+name = "ai-agent-service"
+version = "1.0.0"
+description = "Quorvexa AI Agent Service — LLM orchestration and agent execution"
+authors = ["Quorvexa Team"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.115.5"
+uvicorn = {extras = ["standard"], version = "^0.32.1"}
+pydantic = "^2.10.3"
+pydantic-settings = "^2.6.1"
+langchain = "^0.3.12"
+langchain-community = "^0.3.12"
+langchain-openai = "^0.2.14"
+qdrant-client = "^1.12.1"
+redis = "^5.2.1"
+httpx = "^0.28.1"
+opentelemetry-api = "^1.28.4"
+opentelemetry-sdk = "^1.28.4"
+opentelemetry-exporter-otlp-proto-grpc = "^1.28.4"
+opentelemetry-instrumentation-fastapi = ">=0.49b0"
+prometheus-client = "^0.21.1"
+structlog = "^24.4.0"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+pytest-asyncio = "^0.24.0"
+pytest-cov = "^6.0.0"
+httpx = "^0.28.1"
+black = "^24.10.0"
+ruff = "^0.8.3"
+mypy = "^1.13.0"
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "ANN", "S", "B"]
+ignore = ["B008", "S310"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "ANN201"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+pythonpath = ["."]
+addopts = "--cov=app --cov-report=term-missing --cov-report=xml --cov-fail-under=70 --ignore=tests/test_main.py --ignore=tests/test_agents.py"
+testpaths = ["tests"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

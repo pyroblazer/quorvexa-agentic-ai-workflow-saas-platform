@@ -1,0 +1,54 @@
+{
+  "name": "@quorvexa/ui",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./styles": "./src/styles/index.css"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w",
+    "test": "jest --passWithNoTests",
+    "test:unit": "jest --testPathPattern=\\.spec\\.tsx?$ --passWithNoTests",
+    "lint": "eslint src --ext .tsx,.ts",
+    "type-check": "tsc --noEmit",
+    "clean": "rimraf dist coverage"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "devDependencies": {
+    "@quorvexa/config": "workspace:*",
+    "@testing-library/jest-dom": "^6.6.2",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.1",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "rimraf": "^5.0.10",
+    "tailwindcss": "^3.4.16",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.7.2"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "jsdom",
+    "rootDir": "src",
+    "testRegex": ".*\\.spec\\.tsx?$",
+    "transform": {
+      "^.+\\.(t|j)sx?$": ["ts-jest", { "tsconfig": { "jsx": "react-jsx", "esModuleInterop": true, "module": "commonjs" } }]
+    },
+    "coverageDirectory": "../coverage",
+    "collectCoverageFrom": ["**/*.(t|j)sx?", "!**/*.spec.*", "!**/index.*"]
+  }
+}

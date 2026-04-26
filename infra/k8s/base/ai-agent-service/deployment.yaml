@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-agent-service
+  labels:
+    app: ai-agent-service
+    tier: backend
+    compliance: iso27001
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ai-agent-service
+  template:
+    metadata:
+      labels:
+        app: ai-agent-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3005"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: ai-agent-service
+          image: ghcr.io/quorvexa/ai-agent-service:latest
+          ports:
+            - containerPort: 3005
+          env:
+            - name: ENVIRONMENT
+              value: production
+            - name: LLM_PROVIDER
+              value: openai
+            - name: OPENAI_BASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ai-agent-secrets
+                  key: openai-base-url
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ai-agent-secrets
+                  key: openai-api-key
+            - name: QDRANT_URL
+              value: http://qdrant-service:6333
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health/live
+              port: 3005
+            initialDelaySeconds: 20
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health/ready
+              port: 3005
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-agent-service
+spec:
+  selector:
+    app: ai-agent-service
+  ports:
+    - port: 3005
+      targetPort: 3005
+  type: ClusterIP

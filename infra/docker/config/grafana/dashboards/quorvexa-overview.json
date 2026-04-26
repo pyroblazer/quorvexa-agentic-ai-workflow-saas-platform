@@ -1,0 +1,275 @@
+{
+  "uid": "quorvexa-overview",
+  "title": "Quorvexa Platform Overview",
+  "tags": ["quorvexa", "overview", "iso27001"],
+  "timezone": "browser",
+  "refresh": "30s",
+  "panels": [
+    {
+      "id": 1,
+      "title": "Request Rate (req/s)",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 0, "w": 8, "h": 8 },
+      "targets": [
+        { "expr": "sum(rate(http_requests_total[5m])) by (service)", "legendFormat": "{{service}}" }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "P95 Request Latency (ms)",
+      "type": "timeseries",
+      "gridPos": { "x": 8, "y": 0, "w": 8, "h": 8 },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (service, le)) * 1000", "legendFormat": "p95 {{service}}" }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Error Rate (%)",
+      "type": "timeseries",
+      "gridPos": { "x": 16, "y": 0, "w": 8, "h": 8 },
+      "targets": [
+        { "expr": "sum(rate(http_requests_total{status_code=~\"5..\"}[5m])) by (service) / sum(rate(http_requests_total[5m])) by (service) * 100", "legendFormat": "{{service}}" }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "AI Agent Requests",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 8, "w": 8, "h": 8 },
+      "targets": [
+        { "expr": "sum(rate(ai_requests_total[5m])) by (model, status)", "legendFormat": "{{model}} ({{status}})" }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "AI Agent P95 Latency (s)",
+      "type": "stat",
+      "gridPos": { "x": 8, "y": 8, "w": 4, "h": 4 },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum(rate(ai_request_duration_seconds_bucket[5m])) by (le))" }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Active Connections",
+      "type": "stat",
+      "gridPos": { "x": 12, "y": 8, "w": 4, "h": 4 },
+      "targets": [
+        { "expr": "sum(active_connections) by (service)" }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Service Health Status",
+      "type": "stat",
+      "gridPos": { "x": 16, "y": 8, "w": 4, "h": 4 },
+      "targets": [
+        { "expr": "up{job=~\"auth-service|workflow-service|ai-agent-service|gateway|notification-service|user-service\"}" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "DOWN", "color": "red" }, "1": { "text": "UP", "color": "green" } } }
+          ]
+        }
+      }
+    },
+    {
+      "id": 8,
+      "title": "HTTP Status Code Distribution",
+      "type": "piechart",
+      "gridPos": { "x": 20, "y": 8, "w": 4, "h": 4 },
+      "targets": [
+        { "expr": "sum(rate(http_requests_total[5m])) by (status_code)" }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Database Connection Pool",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 16, "w": 8, "h": 8 },
+      "targets": [
+        { "expr": "pg_stat_activity_count", "legendFormat": "Active connections" },
+        { "expr": "pg_settings_max_connections", "legendFormat": "Max connections" }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Cache Hit Rate (%)",
+      "type": "gauge",
+      "gridPos": { "x": 8, "y": 16, "w": 4, "h": 4 },
+      "targets": [
+        { "expr": "sum(rate(cache_hits_total[5m])) / (sum(rate(cache_hits_total[5m])) + sum(rate(cache_misses_total[5m]))) * 100" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": { "steps": [{ "value": 0, "color": "red" }, { "value": 50, "color": "yellow" }, { "value": 80, "color": "green" }] }
+        }
+      }
+    },
+    {
+      "id": 11,
+      "title": "Redis Memory Usage",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 16, "w": 8, "h": 8 },
+      "targets": [
+        { "expr": "redis_memory_used_bytes", "legendFormat": "Used" },
+        { "expr": "redis_memory_max_bytes", "legendFormat": "Max" }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Redis Commands/sec",
+      "type": "timeseries",
+      "gridPos": { "x": 20, "y": 16, "w": 4, "h": 8 },
+      "targets": [
+        { "expr": "rate(redis_commands_processed_total[5m])", "legendFormat": "Commands/sec" }
+      ]
+    },
+    {
+      "id": 13,
+      "title": "Node.js Heap Usage (MB)",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 24, "w": 8, "h": 8 },
+      "targets": [
+        { "expr": "process_resident_memory_bytes / 1024 / 1024", "legendFormat": "RSS {{service}}" },
+        { "expr": "nodejs_heap_size_used_bytes / 1024 / 1024", "legendFormat": "Heap Used {{service}}" },
+        { "expr": "nodejs_heap_size_total_bytes / 1024 / 1024", "legendFormat": "Heap Total {{service}}" }
+      ]
+    },
+    {
+      "id": 14,
+      "title": "Event Loop Lag (ms)",
+      "type": "timeseries",
+      "gridPos": { "x": 8, "y": 24, "w": 8, "h": 8 },
+      "targets": [
+        { "expr": "nodejs_eventloop_lag_seconds * 1000", "legendFormat": "{{service}}" }
+      ]
+    },
+    {
+      "id": 15,
+      "title": "Active Handles & Requests",
+      "type": "timeseries",
+      "gridPos": { "x": 16, "y": 24, "w": 8, "h": 8 },
+      "targets": [
+        { "expr": "nodejs_active_handles", "legendFormat": "Handles {{service}}" },
+        { "expr": "nodejs_active_requests_total", "legendFormat": "Requests {{service}}" }
+      ]
+    },
+    {
+      "id": 16,
+      "title": "Workflow Execution Rate",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 32, "w": 8, "h": 8 },
+      "targets": [
+        { "expr": "sum(rate(http_requests_total{route=~\".*workflows.*trigger.*\"}[5m]))", "legendFormat": "Triggers/sec" },
+        { "expr": "sum(rate(http_requests_total{route=~\".*workflows.*\",status_code=\"201\"}[5m]))", "legendFormat": "Created/sec" }
+      ]
+    },
+    {
+      "id": 17,
+      "title": "Notification Delivery Rate",
+      "type": "timeseries",
+      "gridPos": { "x": 8, "y": 32, "w": 8, "h": 8 },
+      "targets": [
+        { "expr": "sum(rate(http_requests_total{route=~\".*notifications.*send.*\"}[5m]))", "legendFormat": "Sent/sec" }
+      ]
+    },
+    {
+      "id": 18,
+      "title": "Auth Events",
+      "type": "timeseries",
+      "gridPos": { "x": 16, "y": 32, "w": 8, "h": 8 },
+      "targets": [
+        { "expr": "sum(rate(http_requests_total{route=~\".*auth.*register.*\"}[5m]))", "legendFormat": "Registrations" },
+        { "expr": "sum(rate(http_requests_total{route=~\".*auth.*login.*\",status_code=\"200\"}[5m]))", "legendFormat": "Logins" },
+        { "expr": "sum(rate(http_requests_total{route=~\".*auth.*login.*\",status_code=\"401\"}[5m]))", "legendFormat": "Failed Logins" }
+      ]
+    },
+    {
+      "id": 19,
+      "title": "AI Tokens Used (Total)",
+      "type": "stat",
+      "gridPos": { "x": 0, "y": 40, "w": 4, "h": 4 },
+      "targets": [
+        { "expr": "sum(ai_tokens_used_total)" }
+      ]
+    },
+    {
+      "id": 20,
+      "title": "Error Breakdown by Type",
+      "type": "barchart",
+      "gridPos": { "x": 4, "y": 40, "w": 8, "h": 8 },
+      "targets": [
+        { "expr": "sum(rate(errors_total[5m])) by (type, service)", "legendFormat": "{{type}} - {{service}}" }
+      ]
+    },
+    {
+      "id": 21,
+      "title": "CPU Usage (%)",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 40, "w": 6, "h": 8 },
+      "targets": [
+        { "expr": "rate(process_cpu_seconds_total[5m]) * 100", "legendFormat": "{{service}}" }
+      ]
+    },
+    {
+      "id": 22,
+      "title": "PostgreSQL Transactions/sec",
+      "type": "timeseries",
+      "gridPos": { "x": 18, "y": 40, "w": 6, "h": 8 },
+      "targets": [
+        { "expr": "rate(pg_stat_database_xact_commit[5m])", "legendFormat": "Commits" },
+        { "expr": "rate(pg_stat_database_xact_rollback[5m])", "legendFormat": "Rollbacks" }
+      ]
+    },
+    {
+      "id": 23,
+      "title": "Compliance Audit Events (ISO 27001)",
+      "type": "stat",
+      "gridPos": { "x": 0, "y": 48, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "sum(increase(http_requests_total{route=~\".*audit.*\"}[24h]))", "legendFormat": "24h Audit Events" }
+      ]
+    },
+    {
+      "id": 24,
+      "title": "Request Rate by Endpoint (Top 10)",
+      "type": "barchart",
+      "gridPos": { "x": 6, "y": 48, "w": 10, "h": 8 },
+      "targets": [
+        { "expr": "topk(10, sum(rate(http_requests_total[5m])) by (route))", "legendFormat": "{{route}}" }
+      ]
+    },
+    {
+      "id": 25,
+      "title": "Uptime (%)",
+      "type": "gauge",
+      "gridPos": { "x": 16, "y": 48, "w": 4, "h": 4 },
+      "targets": [
+        { "expr": "avg(up{job=~\"auth-service|workflow-service|ai-agent-service|gateway|notification-service|user-service\"}) * 100" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": { "steps": [{ "value": 0, "color": "red" }, { "value": 95, "color": "yellow" }, { "value": 99, "color": "green" }] }
+        }
+      }
+    },
+    {
+      "id": 26,
+      "title": "GC Pause Duration (ms)",
+      "type": "timeseries",
+      "gridPos": { "x": 20, "y": 48, "w": 4, "h": 8 },
+      "targets": [
+        { "expr": "rate(nodejs_gc_pause_seconds_sum[5m]) * 1000", "legendFormat": "{{service}} {{gc_type}}" }
+      ]
+    }
+  ]
+}

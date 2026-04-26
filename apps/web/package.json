@@ -1,0 +1,66 @@
+{
+  "name": "web",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start",
+    "test": "jest --passWithNoTests",
+    "test:unit": "jest --testPathPattern=\\.spec\\.tsx?$ --passWithNoTests",
+    "test:e2e": "playwright test",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "type-check": "tsc --noEmit",
+    "clean": "rimraf .next out coverage"
+  },
+  "dependencies": {
+    "@quorvexa/ui": "workspace:*",
+    "@quorvexa/sdk": "workspace:*",
+    "@tanstack/react-query": "^5.62.7",
+    "@tanstack/react-query-devtools": "^5.62.7",
+    "next": "^15.0.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zustand": "^5.0.1",
+    "clsx": "^2.1.1",
+    "react-hook-form": "^7.54.0",
+    "@hookform/resolvers": "^3.9.1",
+    "zod": "^3.23.8",
+    "date-fns": "^4.1.0",
+    "recharts": "^2.13.3",
+    "lucide-react": "^0.456.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "rootDir": "src",
+    "testRegex": ".*\\.spec\\.tsx?$",
+    "transform": {
+      "^.+\\.(t|j)sx?$": ["ts-jest", { "tsconfig": { "jsx": "react-jsx", "esModuleInterop": true } }]
+    },
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/$1",
+      "^@quorvexa/(.*)$": "<rootDir>/../../packages/$1/src/index.ts"
+    },
+    "coverageDirectory": "../coverage",
+    "collectCoverageFrom": ["**/*.(t|j)sx?", "!**/node_modules/**", "!**/*.d.ts"]
+  },
+  "devDependencies": {
+    "@quorvexa/config": "workspace:*",
+    "@playwright/test": "^1.49.0",
+    "@testing-library/jest-dom": "^6.6.2",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/node": "^20.17.10",
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.1",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "rimraf": "^5.0.10",
+    "tailwindcss": "^3.4.16",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "typescript": "^5.7.2"
+  }
+}

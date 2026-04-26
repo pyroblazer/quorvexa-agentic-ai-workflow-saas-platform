@@ -1,0 +1,351 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main, develop, "feature/**", "fix/**"]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "20"
+  PYTHON_VERSION: "3.11"
+  PNPM_VERSION: "9.12.3"
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ${{ github.repository_owner }}/quorvexa
+
+jobs:
+
+  # ─────────────────────────────────────────────────────────────────
+  # 1. INSTALL & CACHE
+  # ─────────────────────────────────────────────────────────────────
+  setup:
+    name: Install Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install Node dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+
+  # ─────────────────────────────────────────────────────────────────
+  # 2. LINT (parallel)
+  # ─────────────────────────────────────────────────────────────────
+  lint-ts:
+    name: Lint TypeScript
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: "${{ env.PNPM_VERSION }}" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "${{ env.NODE_VERSION }}", cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run lint --parallel
+
+  lint-python:
+    name: Lint Python
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "${{ env.PYTHON_VERSION }}" }
+      - name: Install ruff
+        run: pip install ruff==0.8.3
+      - name: Ruff lint
+        run: ruff check services/ai-agent-service/
+      - name: Ruff format check
+        run: ruff format --check services/ai-agent-service/
+
+  # ─────────────────────────────────────────────────────────────────
+  # 3. TYPE CHECK (parallel)
+  # ─────────────────────────────────────────────────────────────────
+  type-check:
+    name: TypeScript Type Check
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: "${{ env.PNPM_VERSION }}" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "${{ env.NODE_VERSION }}", cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run type-check --parallel
+
+  # ─────────────────────────────────────────────────────────────────
+  # 4. UNIT TESTS (parallel)
+  # ─────────────────────────────────────────────────────────────────
+  unit-tests-ts:
+    name: Unit Tests (TypeScript)
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: "${{ env.PNPM_VERSION }}" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "${{ env.NODE_VERSION }}", cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run test:unit --parallel -- --coverage
+      - name: Upload coverage
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: unit-ts
+
+  unit-tests-python:
+    name: Unit Tests (Python)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "${{ env.PYTHON_VERSION }}" }
+      - name: Install Poetry
+        run: pip install poetry==1.8.4
+      - name: Install dependencies
+        run: poetry install --no-root
+        working-directory: services/ai-agent-service
+      - name: Run tests
+        run: poetry run pytest --cov --cov-report=xml
+        working-directory: services/ai-agent-service
+      - name: Upload coverage
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: unit-python
+
+  # ─────────────────────────────────────────────────────────────────
+  # 5. INTEGRATION TESTS
+  # ─────────────────────────────────────────────────────────────────
+  integration-tests:
+    name: Integration Tests
+    needs: [unit-tests-ts, unit-tests-python]
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: quorvexa
+          POSTGRES_PASSWORD: test_pass
+          POSTGRES_DB: quorvexa_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://quorvexa:test_pass@localhost:5432/quorvexa_test
+      TEST_DATABASE_URL: postgresql://quorvexa:test_pass@localhost:5432/quorvexa_test
+      JWT_SECRET: test-jwt-secret-at-least-32-characters-long
+      JWT_REFRESH_SECRET: test-refresh-secret-at-least-32-chars
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: "${{ env.PNPM_VERSION }}" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "${{ env.NODE_VERSION }}", cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run test:integration --parallel
+
+  # ─────────────────────────────────────────────────────────────────
+  # 6. BUILD
+  # ─────────────────────────────────────────────────────────────────
+  build:
+    name: Build All Services
+    needs: [lint-ts, lint-python, type-check]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: "${{ env.PNPM_VERSION }}" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "${{ env.NODE_VERSION }}", cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm turbo run build
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            services/*/dist
+            apps/*/dist
+            apps/web/.next
+          retention-days: 1
+
+  # ─────────────────────────────────────────────────────────────────
+  # 7. DOCKER BUILD
+  # ─────────────────────────────────────────────────────────────────
+  docker-build:
+    name: Docker Build
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        service:
+          - name: auth-service
+            dockerfile: services/auth-service/Dockerfile
+          - name: user-service
+            dockerfile: services/user-service/Dockerfile
+          - name: workflow-service
+            dockerfile: services/workflow-service/Dockerfile
+          - name: notification-service
+            dockerfile: services/notification-service/Dockerfile
+          - name: ai-agent-service
+            dockerfile: services/ai-agent-service/Dockerfile
+          - name: gateway
+            dockerfile: apps/gateway/Dockerfile
+          - name: web
+            dockerfile: apps/web/Dockerfile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.service.dockerfile }}
+          push: ${{ github.ref == 'refs/heads/main' }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-${{ matrix.service.name }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ─────────────────────────────────────────────────────────────────
+  # 8. SECURITY SCAN (Trivy)
+  # ─────────────────────────────────────────────────────────────────
+  security-scan:
+    name: Security Scan (Trivy)
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Trivy filesystem scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: sarif
+          output: trivy-results.sarif
+          severity: HIGH,CRITICAL
+          exit-code: 0
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-results.sarif
+
+  # ─────────────────────────────────────────────────────────────────
+  # 9. SBOM GENERATION
+  # ─────────────────────────────────────────────────────────────────
+  sbom:
+    name: Generate SBOM
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate SBOM with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          format: cyclonedx
+          output: sbom.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.json
+
+  # ─────────────────────────────────────────────────────────────────
+  # 10. E2E TESTS
+  # ─────────────────────────────────────────────────────────────────
+  e2e-tests:
+    name: E2E Tests (Playwright)
+    needs: [integration-tests, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: "${{ env.PNPM_VERSION }}" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "${{ env.NODE_VERSION }}", cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Install Playwright
+        run: pnpm --filter web exec playwright install --with-deps chromium
+      - name: Start dev services
+        run: docker compose -f infra/docker/docker-compose.yml up -d postgres redis qdrant
+      - name: Run E2E tests
+        run: pnpm --filter web run test:e2e
+        env:
+          E2E_BASE_URL: http://localhost:3000
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report/
+          retention-days: 7
+
+  # ─────────────────────────────────────────────────────────────────
+  # 11. PERFORMANCE TEST (k6)
+  # ─────────────────────────────────────────────────────────────────
+  performance-test:
+    name: Performance Test (k6)
+    needs: [integration-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update && sudo apt-get install k6
+      - name: Run load test
+        run: k6 run --out json=k6-results.json tests/performance/k6-load-test.js
+        continue-on-error: true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: k6-results
+          path: k6-results.json

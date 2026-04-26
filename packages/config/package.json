@@ -1,0 +1,12 @@
+{
+  "name": "@quorvexa/config",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": "./index.js",
+    "./eslint": "./eslint/index.js",
+    "./tsconfig": "./tsconfig"
+  }
+}
