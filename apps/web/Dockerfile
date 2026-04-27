@@ -4,7 +4,7 @@ WORKDIR /app
 RUN npm install -g pnpm@9.12.3
 
 FROM base AS deps
-COPY pnpm-lock.yaml package.json ./
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY packages/ui/package.json ./packages/ui/
 COPY packages/sdk/package.json ./packages/sdk/
 COPY packages/config/package.json ./packages/config/
@@ -12,6 +12,7 @@ COPY apps/web/package.json ./apps/web/
 RUN pnpm install --frozen-lockfile
 
 FROM base AS builder
+COPY pnpm-workspace.yaml ./
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1

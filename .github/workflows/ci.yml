@@ -264,18 +264,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run Trivy filesystem scan
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.30.0
         with:
           scan-type: fs
           scan-ref: .
           format: sarif
           output: trivy-results.sarif
           severity: HIGH,CRITICAL
-          exit-code: 0
+          exit-code: "0"
 
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
         if: always()
+        continue-on-error: true
         with:
           sarif_file: trivy-results.sarif
 
@@ -289,7 +290,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Generate SBOM with Trivy
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.30.0
         with:
           scan-type: fs
           scan-ref: .
@@ -323,8 +324,11 @@ jobs:
         working-directory: apps/web
       - name: Start web app
         run: |
-          npx next start -p 3000 &
-          sleep 5
+          ./node_modules/.bin/next start -p 3000 &
+          for i in {1..30}; do
+            curl -sf http://localhost:3000 > /dev/null && break
+            sleep 1
+          done
         working-directory: apps/web
         env:
           NODE_ENV: test

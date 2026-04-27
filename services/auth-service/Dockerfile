@@ -6,7 +6,7 @@ RUN npm install -g pnpm@9.12.3
 
 # ── dependency stage ──────────────────────────────────────────────────────────
 FROM base AS deps
-COPY pnpm-lock.yaml package.json ./
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY packages/observability/package.json ./packages/observability/
 COPY packages/config/package.json ./packages/config/
 COPY services/auth-service/package.json ./services/auth-service/
@@ -14,6 +14,7 @@ RUN pnpm install --frozen-lockfile
 
 # ── build stage ───────────────────────────────────────────────────────────────
 FROM base AS builder
+COPY pnpm-workspace.yaml ./
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/packages ./packages
 COPY packages ./packages
