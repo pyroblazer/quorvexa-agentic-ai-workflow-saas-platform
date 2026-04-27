@@ -1,32 +1,16 @@
-# Multi-stage build — keeps the final image lean and secure
-FROM node:20-alpine AS base
+FROM node:20-alpine AS builder
 RUN apk add --no-cache libc6-compat
-WORKDIR /app
 RUN npm install -g pnpm@9.12.3
-
-# ── dependency stage ──────────────────────────────────────────────────────────
-FROM base AS deps
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
-COPY packages/observability/package.json ./packages/observability/
-COPY packages/config/package.json ./packages/config/
-COPY services/auth-service/package.json ./services/auth-service/
+WORKDIR /app
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json turbo.json ./
+COPY packages/ packages/
+COPY services/auth-service/ services/auth-service/
 RUN pnpm install --frozen-lockfile
+RUN pnpm turbo run build --filter=auth-service
 
-# ── build stage ───────────────────────────────────────────────────────────────
-FROM base AS builder
-COPY pnpm-workspace.yaml ./
-COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/packages ./packages
-COPY packages ./packages
-COPY services/auth-service ./services/auth-service
-COPY turbo.json ./
-RUN pnpm --filter auth-service run build
-
-# ── production stage ──────────────────────────────────────────────────────────
 FROM node:20-alpine AS runner
 WORKDIR /app
 
-# Run as non-root for security
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nestjs
 USER nestjs

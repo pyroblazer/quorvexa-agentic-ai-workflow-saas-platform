@@ -1,0 +1,16 @@
+.git
+.github
+node_modules
+.next
+dist
+coverage
+*.md
+.env*
+.env
+*.log
+tests
+infra
+docs
+*.tgz
+.turbo
+tsconfig.tsbuildinfo

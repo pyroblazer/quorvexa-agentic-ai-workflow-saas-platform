@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import path from 'path';
 
 const nextConfig: NextConfig = {
   // Enable React strict mode for catching potential issues early
@@ -29,7 +30,10 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  output: 'standalone',
+  // standalone only in CI/Docker — Windows pnpm virtual store uses symlinks that
+  // require Developer Mode locally; Linux runners have no such restriction
+  output: process.env['CI'] || process.env['DOCKER_BUILD'] ? 'standalone' : undefined,
+  outputFileTracingRoot: path.join(__dirname, '../..'),
 
   experimental: {},
 };
