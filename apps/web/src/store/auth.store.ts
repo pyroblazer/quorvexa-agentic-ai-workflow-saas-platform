@@ -35,8 +35,14 @@ export const useAuthStore = create<AuthState>()(
         });
 
         if (!response.ok) {
-          const error = await response.json() as { message?: string };
-          throw new Error(error.message ?? 'Login failed');
+          let message = 'Login failed';
+          try {
+            const error = await response.json() as { message?: string };
+            message = error.message ?? message;
+          } catch {
+            // upstream returned non-JSON (e.g., 502 from gateway)
+          }
+          throw new Error(message);
         }
 
         const data = await response.json() as { accessToken: string; user: User };

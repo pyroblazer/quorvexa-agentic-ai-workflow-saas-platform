@@ -264,7 +264,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run Trivy filesystem scan
-        uses: aquasecurity/trivy-action@0.30.0
+        uses: aquasecurity/trivy-action@v0.30.0
         with:
           scan-type: fs
           scan-ref: .
@@ -290,7 +290,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Generate SBOM with Trivy
-        uses: aquasecurity/trivy-action@0.30.0
+        uses: aquasecurity/trivy-action@v0.30.0
         with:
           scan-type: fs
           scan-ref: .
@@ -320,7 +320,7 @@ jobs:
         with:
           name: build-artifacts
       - name: Install Playwright
-        run: npx playwright install --with-deps chromium
+        run: pnpm exec playwright install --with-deps chromium
         working-directory: apps/web
       - name: Start web app
         run: |

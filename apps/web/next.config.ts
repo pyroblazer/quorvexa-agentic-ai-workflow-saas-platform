@@ -29,9 +29,9 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  experimental: {
-    // Enables the App Router (already default in Next.js 15)
-  },
+  output: 'standalone',
+
+  experimental: {},
 };
 
 export default nextConfig;
