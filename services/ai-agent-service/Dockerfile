@@ -15,7 +15,7 @@ ENV POETRY_VENV_IN_PROJECT=1 \
 
 # ── dependency stage ──────────────────────────────────────────────────────────
 FROM base AS deps
-COPY pyproject.toml poetry.lock* ./
+COPY services/ai-agent-service/pyproject.toml services/ai-agent-service/poetry.lock* ./
 RUN poetry install --no-root --only main && rm -rf $POETRY_CACHE_DIR
 
 # ── production stage ──────────────────────────────────────────────────────────
@@ -28,7 +28,7 @@ RUN addgroup --system --gid 1001 appgroup && \
     adduser --system --uid 1001 --gid 1001 appuser
 
 COPY --from=deps --chown=appuser:appgroup /app/.venv /app/.venv
-COPY --chown=appuser:appgroup app ./app
+COPY --chown=appuser:appgroup services/ai-agent-service/app ./app
 
 ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \

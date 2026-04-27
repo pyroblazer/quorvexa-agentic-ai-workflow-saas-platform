@@ -258,8 +258,9 @@ jobs:
   # ─────────────────────────────────────────────────────────────────
   security-scan:
     name: Security Scan (Trivy)
-    needs: build
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
     steps:
       - uses: actions/checkout@v4
       - name: Run Trivy filesystem scan
@@ -291,6 +292,7 @@ jobs:
         uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: fs
+          scan-ref: .
           format: cyclonedx
           output: sbom.json
       - uses: actions/upload-artifact@v4
@@ -312,10 +314,20 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: "${{ env.NODE_VERSION }}", cache: pnpm }
       - run: pnpm install --frozen-lockfile
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
       - name: Install Playwright
-        run: pnpm --filter web exec playwright install --with-deps chromium
-      - name: Start dev services
-        run: docker compose -f infra/docker/docker-compose.yml up -d postgres redis qdrant
+        run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+      - name: Start web app
+        run: |
+          npx next start -p 3000 &
+          sleep 5
+        working-directory: apps/web
+        env:
+          NODE_ENV: test
       - name: Run E2E tests
         run: pnpm --filter web run test:e2e
         env:
@@ -324,7 +336,7 @@ jobs:
         if: failure()
         with:
           name: playwright-report
-          path: apps/web/playwright-report/
+          path: playwright-report/
           retention-days: 7
 
   # ─────────────────────────────────────────────────────────────────
@@ -332,8 +344,37 @@ jobs:
   # ─────────────────────────────────────────────────────────────────
   performance-test:
     name: Performance Test (k6)
-    needs: [integration-tests]
+    needs: [integration-tests, build]
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: quorvexa
+          POSTGRES_PASSWORD: test_pass
+          POSTGRES_DB: quorvexa_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    env:
+      DATABASE_URL: postgresql://quorvexa:test_pass@localhost:5432/quorvexa_test
+      JWT_SECRET: test-jwt-secret-at-least-32-characters-long
+      JWT_REFRESH_SECRET: test-refresh-secret-at-least-32-chars
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
     steps:
       - uses: actions/checkout@v4
       - name: Install k6
@@ -342,6 +383,22 @@ jobs:
           sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
           echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
           sudo apt-get update && sudo apt-get install k6
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+      - uses: pnpm/action-setup@v4
+        with: { version: "${{ env.PNPM_VERSION }}" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "${{ env.NODE_VERSION }}", cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Start gateway in background
+        run: |
+          node apps/gateway/dist/main.js &
+          sleep 3
+        env:
+          PORT: 4000
+          NODE_ENV: test
       - name: Run load test
         run: k6 run --out json=k6-results.json tests/performance/k6-load-test.js
         continue-on-error: true
