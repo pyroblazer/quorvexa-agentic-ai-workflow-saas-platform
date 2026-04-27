@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Install Poetry
 RUN pip install --no-cache-dir poetry==1.8.4
-ENV POETRY_VENV_IN_PROJECT=1 \
+ENV POETRY_VIRTUALENVS_IN_PROJECT=1 \
     POETRY_NO_INTERACTION=1 \
     POETRY_CACHE_DIR=/tmp/poetry_cache
 

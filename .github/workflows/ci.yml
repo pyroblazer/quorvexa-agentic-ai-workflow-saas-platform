@@ -318,12 +318,11 @@ jobs:
         working-directory: apps/web
       - name: Start web app
         run: |
-          ./node_modules/.bin/next start -p 3000 &
-          for i in {1..30}; do
+          pnpm --filter web run start &
+          for i in {1..60}; do
             curl -sf http://localhost:3000 > /dev/null && break
-            sleep 1
+            sleep 2
           done
-        working-directory: apps/web
         env:
           NODE_ENV: test
       - name: Run E2E tests
