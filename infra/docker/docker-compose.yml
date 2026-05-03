@@ -52,7 +52,7 @@ services:
       redis-server
       --maxmemory 256mb
       --maxmemory-policy allkeys-lru
-      --requirepass ${REDIS_PASSWORD:-}
+      --requirepass ${REDIS_PASSWORD:-quorvexa_redis_dev}
       --loglevel notice
     ports:
       - "${REDIS_PORT:-6379}:6379"

@@ -16,8 +16,7 @@
     "outDir": "./dist",
     "baseUrl": "./src",
     "paths": {
-      "@/*": ["*"],
-      "@quorvexa/observability": ["../../../packages/observability/src/index"]
+      "@/*": ["*"]
     }
   },
   "include": ["src/**/*"],
