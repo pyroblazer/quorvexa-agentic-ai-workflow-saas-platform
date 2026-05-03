@@ -22,7 +22,6 @@ services:
   # ────────────────────────────
   prometheus:
     image: prom/prometheus:v2.55.1
-    container_name: quorvexa-prometheus
     restart: unless-stopped
     ports:
       - "${PROMETHEUS_PORT:-9090}:9090"
@@ -45,7 +44,6 @@ services:
   # ────────────────────────────
   grafana:
     image: grafana/grafana-oss:11.3.3
-    container_name: quorvexa-grafana
     restart: unless-stopped
     ports:
       - "${GRAFANA_PORT:-3001}:3000"
@@ -68,7 +66,6 @@ services:
   # ────────────────────────────
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.16.0
-    container_name: quorvexa-elasticsearch
     restart: unless-stopped
     ports:
       - "${ELASTICSEARCH_PORT:-9200}:9200"
@@ -92,7 +89,6 @@ services:
   # ────────────────────────────
   kibana:
     image: docker.elastic.co/kibana/kibana:8.16.0
-    container_name: quorvexa-kibana
     restart: unless-stopped
     ports:
       - "${KIBANA_PORT:-5601}:5601"
@@ -109,7 +105,6 @@ services:
   # ────────────────────────────
   logstash:
     image: docker.elastic.co/logstash/logstash:8.16.0
-    container_name: quorvexa-logstash
     restart: unless-stopped
     ports:
       - "${LOGSTASH_PORT:-5044}:5044"
@@ -130,7 +125,6 @@ services:
   # ────────────────────────────
   jaeger:
     image: jaegertracing/all-in-one:1.62.0
-    container_name: quorvexa-jaeger
     restart: unless-stopped
     ports:
       - "${JAEGER_UI_PORT:-16686}:16686"
@@ -148,7 +142,6 @@ services:
   # ────────────────────────────
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.114.0
-    container_name: quorvexa-otel
     restart: unless-stopped
     ports:
       - "${OTEL_COLLECTOR_PORT:-55680}:55680"

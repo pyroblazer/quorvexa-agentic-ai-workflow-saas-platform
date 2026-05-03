@@ -21,7 +21,6 @@ services:
   # ────────────────────────────
   postgres:
     image: postgres:16-alpine
-    container_name: quorvexa-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-quorvexa}
@@ -46,7 +45,6 @@ services:
   # ────────────────────────────
   redis:
     image: redis:7-alpine
-    container_name: quorvexa-redis
     restart: unless-stopped
     command: >
       redis-server
@@ -71,7 +69,6 @@ services:
   # ────────────────────────────
   qdrant:
     image: qdrant/qdrant:v1.12.4
-    container_name: quorvexa-qdrant
     restart: unless-stopped
     ports:
       - "${QDRANT_HTTP_PORT:-6333}:6333"
@@ -94,7 +91,6 @@ services:
   # ────────────────────────────
   zookeeper:
     image: confluentinc/cp-zookeeper:7.7.0
-    container_name: quorvexa-zookeeper
     restart: unless-stopped
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
@@ -109,7 +105,6 @@ services:
   # ────────────────────────────
   kafka:
     image: confluentinc/cp-kafka:7.7.0
-    container_name: quorvexa-kafka
     restart: unless-stopped
     depends_on:
       zookeeper:
@@ -138,7 +133,6 @@ services:
   # ────────────────────────────
   rabbitmq:
     image: rabbitmq:3-management-alpine
-    container_name: quorvexa-rabbitmq
     restart: unless-stopped
     ports:
       - "${RABBITMQ_PORT:-5672}:5672"
@@ -157,12 +151,11 @@ services:
 
   # ────────────────────────────
   # Ollama — local LLM serving
-  # Start after: make docker:up
-  # Then: docker exec quorvexa-ollama ollama pull llama3
+  # Start after: docker compose up
+  # Then: docker compose exec ollama ollama pull llama3
   # ────────────────────────────
   ollama:
     image: ollama/ollama:latest
-    container_name: quorvexa-ollama
     restart: unless-stopped
     ports:
       - "${OLLAMA_PORT:-11434}:11434"
@@ -187,7 +180,6 @@ services:
     build:
       context: ../..
       dockerfile: services/auth-service/Dockerfile
-    container_name: quorvexa-auth
     restart: unless-stopped
     ports:
       - "${AUTH_SERVICE_PORT:-3001}:3001"
@@ -221,7 +213,6 @@ services:
     build:
       context: ../..
       dockerfile: services/user-service/Dockerfile
-    container_name: quorvexa-user
     restart: unless-stopped
     ports:
       - "${USER_SERVICE_PORT:-3002}:3002"
@@ -246,7 +237,6 @@ services:
     build:
       context: ../..
       dockerfile: services/notification-service/Dockerfile
-    container_name: quorvexa-notification
     restart: unless-stopped
     ports:
       - "${NOTIFICATION_SERVICE_PORT:-3004}:3004"
@@ -273,7 +263,6 @@ services:
     build:
       context: ../..
       dockerfile: services/workflow-service/Dockerfile
-    container_name: quorvexa-workflow
     restart: unless-stopped
     ports:
       - "${WORKFLOW_SERVICE_PORT:-3003}:3003"
@@ -301,7 +290,6 @@ services:
     build:
       context: ../../services/ai-agent-service
       dockerfile: Dockerfile
-    container_name: quorvexa-ai-agent
     restart: unless-stopped
     ports:
       - "${AI_AGENT_SERVICE_PORT:-3005}:3005"
@@ -330,7 +318,6 @@ services:
     build:
       context: ../..
       dockerfile: apps/gateway/Dockerfile
-    container_name: quorvexa-gateway
     restart: unless-stopped
     ports:
       - "${GATEWAY_PORT:-4000}:4000"
@@ -362,7 +349,6 @@ services:
     build:
       context: ../..
       dockerfile: apps/web/Dockerfile
-    container_name: quorvexa-web
     restart: unless-stopped
     ports:
       - "${WEB_PORT:-3000}:3000"
