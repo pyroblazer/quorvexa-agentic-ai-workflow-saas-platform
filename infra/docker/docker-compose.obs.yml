@@ -1,5 +1,3 @@
-version: '3.9'
-
 # ========================
 # Quorvexa Observability Stack
 # Prometheus + Grafana + ELK + Jaeger
@@ -27,7 +25,7 @@ services:
     container_name: quorvexa-prometheus
     restart: unless-stopped
     ports:
-      - "9090:9090"
+      - "${PROMETHEUS_PORT:-9090}:9090"
     volumes:
       - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus-data:/prometheus
@@ -50,7 +48,7 @@ services:
     container_name: quorvexa-grafana
     restart: unless-stopped
     ports:
-      - "3001:3000"
+      - "${GRAFANA_PORT:-3001}:3000"
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
@@ -73,7 +71,7 @@ services:
     container_name: quorvexa-elasticsearch
     restart: unless-stopped
     ports:
-      - "9200:9200"
+      - "${ELASTICSEARCH_PORT:-9200}:9200"
     environment:
       discovery.type: single-node
       xpack.security.enabled: "false"
@@ -97,7 +95,7 @@ services:
     container_name: quorvexa-kibana
     restart: unless-stopped
     ports:
-      - "5601:5601"
+      - "${KIBANA_PORT:-5601}:5601"
     environment:
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
     depends_on:
@@ -114,8 +112,8 @@ services:
     container_name: quorvexa-logstash
     restart: unless-stopped
     ports:
-      - "5044:5044"
-      - "9600:9600"
+      - "${LOGSTASH_PORT:-5044}:5044"
+      - "${LOGSTASH_API_PORT:-9600}:9600"
     volumes:
       - ./config/logstash/pipeline:/usr/share/logstash/pipeline:ro
     environment:
@@ -135,9 +133,9 @@ services:
     container_name: quorvexa-jaeger
     restart: unless-stopped
     ports:
-      - "16686:16686"
-      - "4317:4317"
-      - "4318:4318"
+      - "${JAEGER_UI_PORT:-16686}:16686"
+      - "${JAEGER_OTLP_GRPC_PORT:-4317}:4317"
+      - "${JAEGER_OTLP_HTTP_PORT:-4318}:4318"
     environment:
       COLLECTOR_OTLP_ENABLED: "true"
     volumes:
@@ -153,8 +151,8 @@ services:
     container_name: quorvexa-otel
     restart: unless-stopped
     ports:
-      - "55680:55680"
-      - "8889:8889"
+      - "${OTEL_COLLECTOR_PORT:-55680}:55680"
+      - "${OTEL_COLLECTOR_METRICS_PORT:-8889}:8889"
     volumes:
       - ./config/otel-collector.yml:/etc/otelcol-contrib/config.yaml:ro
     command: ["--config=/etc/otelcol-contrib/config.yaml"]
