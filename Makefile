@@ -29,24 +29,24 @@ setup:
 ## dev: Start all services in development mode
 dev:
 	@echo "$(GREEN)Starting all services...$(RESET)"
-	@docker compose -f infra/docker/docker-compose.yml up -d postgres redis qdrant kafka zookeeper rabbitmq
+	@docker compose -f infra/docker/docker-compose.yml up -d --force-recreate --remove-orphans postgres redis qdrant kafka zookeeper rabbitmq
 	@sleep 5
 	@pnpm turbo run dev --parallel
 
 ## dev:infra: Start only infrastructure (databases, message brokers)
 dev\:infra:
 	@echo "$(GREEN)Starting infrastructure services...$(RESET)"
-	@docker compose -f infra/docker/docker-compose.yml up -d postgres redis qdrant kafka zookeeper rabbitmq
+	@docker compose -f infra/docker/docker-compose.yml up -d --force-recreate --remove-orphans postgres redis qdrant kafka zookeeper rabbitmq
 
 ## dev:obs: Start observability stack (Prometheus, Grafana, ELK)
 dev\:obs:
 	@echo "$(GREEN)Starting observability stack...$(RESET)"
-	@docker compose -f infra/docker/docker-compose.obs.yml up -d
+	@docker compose -f infra/docker/docker-compose.obs.yml up -d --force-recreate --remove-orphans
 
 ## dev:full: Start everything including observability
 dev\:full:
 	@echo "$(GREEN)Starting full stack...$(RESET)"
-	@docker compose -f infra/docker/docker-compose.yml -f infra/docker/docker-compose.obs.yml up -d
+	@docker compose -f infra/docker/docker-compose.yml -f infra/docker/docker-compose.obs.yml up -d --force-recreate --remove-orphans
 
 ## build: Build all packages and services
 build:
@@ -103,15 +103,15 @@ format:
 	@echo "$(GREEN)Formatting code...$(RESET)"
 	@pnpm prettier --write "**/*.{ts,tsx,js,jsx,json,md,yml,yaml}"
 
-## docker:build: Build all Docker images
+## docker:build: Build and recreate all Docker services
 docker\:build:
-	@echo "$(GREEN)Building Docker images...$(RESET)"
-	@docker compose -f infra/docker/docker-compose.yml build
+	@echo "$(GREEN)Building and starting Docker services...$(RESET)"
+	@docker compose -f infra/docker/docker-compose.yml up -d --build --force-recreate --remove-orphans
 
 ## docker:up: Start all Docker services
 docker\:up:
 	@echo "$(GREEN)Starting Docker services...$(RESET)"
-	@docker compose -f infra/docker/docker-compose.yml up -d
+	@docker compose -f infra/docker/docker-compose.yml up -d --force-recreate --remove-orphans
 
 ## docker:down: Stop all Docker services
 docker\:down:
