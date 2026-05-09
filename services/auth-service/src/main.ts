@@ -12,7 +12,7 @@ async function bootstrap() {
   const logger = createLogger('auth-service');
 
   const app = await NestFactory.create(AppModule, {
-    logger: false,
+    logger: ['error', 'warn', 'log'],
   });
 
   // CORS — only allow configured origins

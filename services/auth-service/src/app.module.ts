@@ -13,9 +13,9 @@ import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
-    // Config — validates all env vars at startup using Zod; crash early if misconfigured
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['.env', '../../.env'],
       validate: (config) => envSchema.parse(config),
       expandVariables: true,
     }),

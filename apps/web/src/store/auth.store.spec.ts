@@ -19,7 +19,7 @@ Object.defineProperty(window, 'sessionStorage', { value: sessionStorageMock });
 
 beforeEach(() => {
   mockFetch.mockReset();
-  useAuthStore.setState({ user: null, accessToken: null, isAuthenticated: false });
+  useAuthStore.setState({ user: null, accessToken: null, isAuthenticated: false, _hasHydrated: false });
 });
 
 describe('useAuthStore', () => {
@@ -29,6 +29,17 @@ describe('useAuthStore', () => {
       expect(user).toBeNull();
       expect(accessToken).toBeNull();
       expect(isAuthenticated).toBe(false);
+    });
+
+    it('starts with _hasHydrated false', () => {
+      expect(useAuthStore.getState()._hasHydrated).toBe(false);
+    });
+  });
+
+  describe('_hasHydrated', () => {
+    it('can be set to true to signal rehydration complete', () => {
+      useAuthStore.setState({ _hasHydrated: true });
+      expect(useAuthStore.getState()._hasHydrated).toBe(true);
     });
   });
 
@@ -86,7 +97,7 @@ describe('useAuthStore', () => {
 
   describe('logout', () => {
     it('clears state regardless of fetch outcome', async () => {
-      useAuthStore.setState({ accessToken: 'tok', isAuthenticated: true, user: { id: 'u1', email: 'a@b.com', firstName: 'A', lastName: 'B', role: 'member', tenantId: 't1' } });
+      useAuthStore.setState({ accessToken: 'tok', isAuthenticated: true, _hasHydrated: true, user: { id: 'u1', email: 'a@b.com', firstName: 'A', lastName: 'B', role: 'member', tenantId: 't1' } });
       mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve(null) });
 
       await useAuthStore.getState().logout();
@@ -98,7 +109,7 @@ describe('useAuthStore', () => {
     });
 
     it('clears state even when fetch fails', async () => {
-      useAuthStore.setState({ accessToken: 'tok', isAuthenticated: true, user: { id: 'u1', email: 'a@b.com', firstName: 'A', lastName: 'B', role: 'member', tenantId: 't1' } });
+      useAuthStore.setState({ accessToken: 'tok', isAuthenticated: true, _hasHydrated: true, user: { id: 'u1', email: 'a@b.com', firstName: 'A', lastName: 'B', role: 'member', tenantId: 't1' } });
       mockFetch.mockRejectedValueOnce(new Error('network error'));
 
       await useAuthStore.getState().logout();

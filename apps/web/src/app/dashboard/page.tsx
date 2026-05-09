@@ -75,7 +75,7 @@ export default function DashboardPage() {
                   <p className="text-xs text-muted-foreground mt-0.5">{wf.status}</p>
                 </div>
                 <span className="text-xs text-muted-foreground">
-                  {wf.lastRunAt ? new Date(wf.lastRunAt).toLocaleDateString() : 'Never run'}
+                  {wf.lastRunAt ? new Date(wf.lastRunAt).toISOString().slice(0, 10) : 'Never run'}
                 </span>
               </li>
             ))}

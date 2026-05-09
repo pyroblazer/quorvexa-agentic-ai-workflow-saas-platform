@@ -12,6 +12,7 @@ import { ProxyMiddleware } from './proxy/proxy.middleware';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['.env', '../../.env'],
       validate: (config) => envSchema.parse(config),
     }),
     ThrottlerModule.forRootAsync({

@@ -17,6 +17,7 @@ import { TemplateModule } from './template/template.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['.env', '../../.env'],
       validate: (config) => envSchema.parse(config),
     }),
     TypeOrmModule.forRootAsync({

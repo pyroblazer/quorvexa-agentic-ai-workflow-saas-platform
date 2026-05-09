@@ -14,6 +14,7 @@ interface AuthState {
   user: User | null;
   accessToken: string | null;
   isAuthenticated: boolean;
+  _hasHydrated: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   setTokens: (accessToken: string, user: User) => void;
@@ -25,6 +26,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       accessToken: null,
       isAuthenticated: false,
+      _hasHydrated: false,
 
       login: async (email: string, password: string) => {
         const response = await fetch('/api/v1/auth/login', {
@@ -68,8 +70,10 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'quorvexa-auth',
       storage: createJSONStorage(() => sessionStorage),
-      // Only persist user info, never the access token in localStorage
       partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }),
+      onRehydrateStorage: () => (state) => {
+        if (state) state._hasHydrated = true;
+      },
     },
   ),
 );

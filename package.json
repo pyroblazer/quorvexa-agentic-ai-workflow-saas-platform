@@ -9,18 +9,37 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "turbo run dev --parallel",
+    "setup": "node scripts/setup.mjs",
+
+    "dev": "node scripts/dev.mjs",
+    "dev:infra": "docker compose -f infra/docker/docker-compose.yml up -d --force-recreate postgres redis qdrant kafka zookeeper rabbitmq",
+    "dev:obs": "docker compose -f infra/docker/docker-compose.obs.yml up -d --force-recreate --remove-orphans",
+    "dev:full": "node scripts/dev-full.mjs",
+
+    "docker:build": "docker compose -f infra/docker/docker-compose.yml up -d --build --force-recreate --remove-orphans",
+    "docker:up": "docker compose -f infra/docker/docker-compose.yml up -d --force-recreate --remove-orphans",
+    "docker:down": "docker compose -f infra/docker/docker-compose.yml down",
+    "docker:stop": "docker compose -f infra/docker/docker-compose.yml down && docker compose -f infra/docker/docker-compose.obs.yml down",
+    "docker:logs": "docker compose -f infra/docker/docker-compose.yml logs -f",
+
     "build": "turbo run build",
     "test": "turbo run test --parallel",
     "test:unit": "turbo run test:unit --parallel",
     "test:integration": "turbo run test:integration --parallel",
     "test:e2e": "turbo run test:e2e",
+    "test:api": "npx newman run tests/api/postman-collection.json -e tests/api/postman-environment.json",
+
     "lint": "turbo run lint --parallel",
     "lint:fix": "turbo run lint:fix --parallel",
     "type-check": "turbo run type-check --parallel",
-    "clean": "turbo run clean && rimraf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\""
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+
+    "migrate": "pnpm --filter auth-service run migrate && pnpm --filter user-service run migrate && pnpm --filter workflow-service run migrate",
+    "migrate:rollback": "pnpm --filter auth-service run migrate:rollback && pnpm --filter user-service run migrate:rollback && pnpm --filter workflow-service run migrate:rollback",
+    "seed": "pnpm --filter auth-service run seed",
+
+    "clean": "turbo run clean && rimraf node_modules"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",

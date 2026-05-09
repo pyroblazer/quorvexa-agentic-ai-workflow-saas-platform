@@ -40,7 +40,7 @@
     },
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/$1",
-      "^@quorvexa/(.*)$": "<rootDir>/../../packages/$1/src/index.ts"
+      "^@quorvexa/(.*)$": "<rootDir>/../../../packages/$1/src/index.ts"
     },
     "coverageDirectory": "../coverage",
     "collectCoverageFrom": ["**/*.(t|j)sx?", "!**/node_modules/**", "!**/*.d.ts"]

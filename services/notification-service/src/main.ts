@@ -10,7 +10,7 @@ initTracing('notification-service', '1.0.0');
 async function bootstrap() {
   const logger = createLogger('notification-service');
 
-  const app = await NestFactory.create(AppModule, { logger: false });
+  const app = await NestFactory.create(AppModule, { logger: ['error', 'warn', 'log'] });
   app.enableCors({
     origin: (process.env['CORS_ORIGINS'] ?? 'http://localhost:3000').split(','),
     credentials: true,

@@ -13,6 +13,7 @@ import { WorkflowModule } from './workflow/workflow.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['.env', '../../.env'],
       validate: (config) => envSchema.parse(config),
     }),
     TypeOrmModule.forRootAsync({

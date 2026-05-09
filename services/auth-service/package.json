@@ -15,7 +15,7 @@
     "migrate": "typeorm migration:run -d dist/database/data-source.js",
     "migrate:rollback": "typeorm migration:revert -d dist/database/data-source.js",
     "migrate:generate": "typeorm migration:generate -d dist/database/data-source.js",
-    "seed": "ts-node src/database/seeds/run-seed.ts",
+    "seed": "node src/database/seeds/seed-admin.js",
     "clean": "rimraf dist coverage"
   },
   "dependencies": {
