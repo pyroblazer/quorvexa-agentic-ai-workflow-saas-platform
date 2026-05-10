@@ -47,6 +47,7 @@
   },
   "devDependencies": {
     "@quorvexa/config": "workspace:*",
+    "eslint-config-next": "^15.0.3",
     "@playwright/test": "^1.49.0",
     "@testing-library/jest-dom": "^6.6.2",
     "@testing-library/react": "^16.1.0",

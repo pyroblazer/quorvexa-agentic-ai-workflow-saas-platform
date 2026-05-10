@@ -18,6 +18,7 @@
       "cache": true
     },
     "test:unit": {
+      "dependsOn": ["^build"],
       "outputs": ["coverage/**"],
       "cache": true
     },
@@ -31,6 +32,7 @@
       "cache": false
     },
     "lint": {
+      "dependsOn": ["^build"],
       "outputs": [],
       "cache": true
     },

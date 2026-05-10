@@ -63,7 +63,13 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: "${{ env.NODE_VERSION }}", cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      - run: pnpm turbo run lint --parallel
+      - name: Cache turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-lint-${{ github.sha }}
+          restore-keys: turbo-lint-
+      - run: pnpm turbo run lint
 
   lint-python:
     name: Lint Python
@@ -93,7 +99,13 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: "${{ env.NODE_VERSION }}", cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      - run: pnpm turbo run type-check --parallel
+      - name: Cache turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-typecheck-${{ github.sha }}
+          restore-keys: turbo-typecheck-
+      - run: pnpm turbo run type-check
 
   # ─────────────────────────────────────────────────────────────────
   # 4. UNIT TESTS (parallel)
@@ -109,7 +121,13 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: "${{ env.NODE_VERSION }}", cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      - run: pnpm turbo run test:unit --parallel -- --coverage
+      - name: Cache turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-test-${{ github.sha }}
+          restore-keys: turbo-test-
+      - run: pnpm turbo run test:unit -- --coverage
       - name: Upload coverage
         uses: codecov/codecov-action@v5
         with:
