@@ -6,7 +6,7 @@ test.describe('Authentication', () => {
   test('homepage loads successfully', async ({ page }) => {
     await page.goto(BASE_URL);
     await expect(page).toHaveTitle(/Quorvexa/);
-    await expect(page.getByRole('heading', { name: 'Quorvexa' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /AI-Powered Workflow Automation/ })).toBeVisible();
   });
 
   test('login page is accessible', async ({ page }) => {

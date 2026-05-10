@@ -20,7 +20,7 @@ export default defineConfig({
     url: 'http://localhost:3000',
     reuseExistingServer: true,
     timeout: 120_000,
-    env: { NODE_ENV: 'test' },
+    env: { NODE_ENV: 'test', NEXT_PUBLIC_ENABLE_DEV_TOOLS: 'true' },
   },
   projects: [
     {

@@ -8,7 +8,7 @@ import { useDevPlaygroundStore } from '@/store/dev-playground.store';
 export default function DevPlaygroundPage() {
   const clearResponses = useDevPlaygroundStore((s) => s.clearResponses);
 
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NEXT_PUBLIC_ENABLE_DEV_TOOLS !== 'true') {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
         <p className="text-muted-foreground">This page is not available in production.</p>

@@ -11,7 +11,7 @@ const navItems = [
   { href: '/workflows', label: 'Workflows' },
   { href: '/agents', label: 'AI Agents' },
   { href: '/settings', label: 'Settings' },
-  ...(process.env.NODE_ENV === 'development'
+  ...(process.env.NEXT_PUBLIC_ENABLE_DEV_TOOLS === 'true'
     ? [{ href: '/dashboard/dev' as const, label: 'Dev Playground' as const }]
     : []),
 ];

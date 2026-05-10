@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
   if (request.nextUrl.pathname === '/dashboard/dev' || request.nextUrl.pathname.startsWith('/dashboard/dev/')) {
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NEXT_PUBLIC_ENABLE_DEV_TOOLS !== 'true') {
       return NextResponse.rewrite(new URL('/not-found', request.url));
     }
   }

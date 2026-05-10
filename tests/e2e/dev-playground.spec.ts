@@ -56,25 +56,25 @@ test.describe('Developer Playground', () => {
 
     // Switch to Workflows
     await page.getByRole('button', { name: 'Workflows' }).click();
-    await expect(page.getByText('Create Workflow')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Create Workflow' })).toBeVisible();
 
     // Switch to Notifications
     await page.getByRole('button', { name: 'Notifications' }).click();
-    await expect(page.getByText('Send Notification')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Send Notification' })).toBeVisible();
 
     // Switch to AI Agents
     await page.getByRole('button', { name: 'AI Agents' }).click();
-    await expect(page.getByText('Run Agent')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Run Agent' })).toBeVisible();
 
     // Switch to Preferences
     await page.getByRole('button', { name: 'Preferences' }).click();
-    await expect(page.getByText('User Preferences')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'User Preferences' })).toBeVisible();
   });
 
   test('simulation guide tab shows all steps', async ({ page }) => {
     await page.goto(`${BASE_URL}/dashboard/dev`);
     await page.getByRole('button', { name: 'Simulation Guide' }).click();
-    await expect(page.getByText('Simulation Guide')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Simulation Guide' })).toBeVisible();
     await expect(page.getByText('Register a test user')).toBeVisible();
     await expect(page.getByText('Login as the test user')).toBeVisible();
     await expect(page.getByText('View your profile')).toBeVisible();
@@ -98,7 +98,7 @@ test.describe('Developer Playground', () => {
     await page.goto(`${BASE_URL}/dashboard/dev`);
     // Auth panel should be visible by default with pre-filled values
     const emailInput = page.getByLabel('Email');
-    await expect(emailInput).toHaveValue('dev@quorvexa.io');
+    await expect(emailInput).toHaveValue('admin@quorvexa.dev');
   });
 
   test('sidebar shows dev playground link', async ({ page }) => {

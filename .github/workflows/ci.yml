@@ -327,6 +327,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Build web app
         run: pnpm turbo run build --filter=web
+        env:
+          NEXT_PUBLIC_ENABLE_DEV_TOOLS: 'true'
       - name: Install Playwright
         run: pnpm exec playwright install --with-deps chromium
         working-directory: apps/web
@@ -334,6 +336,7 @@ jobs:
         run: pnpm --filter web run test:e2e
         env:
           E2E_BASE_URL: http://localhost:3000
+          NEXT_PUBLIC_ENABLE_DEV_TOOLS: 'true'
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
