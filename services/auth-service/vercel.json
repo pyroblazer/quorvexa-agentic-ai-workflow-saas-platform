@@ -1,6 +1,7 @@
 {
   "buildCommand": "npm i -g pnpm@9 && pnpm install && pnpm --filter @quorvexa/observability run build && pnpm --filter auth-service run build",
   "installCommand": "npm i -g pnpm@9 && pnpm install",
+  "outputDirectory": "dist",
   "framework": null,
   "routes": [
     { "src": "/(.*)", "dest": "/api/index" }
