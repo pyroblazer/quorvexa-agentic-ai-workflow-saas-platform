@@ -1,5 +1,5 @@
 {
-  "buildCommand": "pnpm --filter @quorvexa/observability run build && pnpm --filter workflow-service run build",
+  "buildCommand": "npm i -g pnpm@9 && pnpm --filter @quorvexa/observability run build && pnpm --filter workflow-service run build",
   "installCommand": "npm i -g pnpm@9 && pnpm install",
   "framework": null,
   "routes": [
