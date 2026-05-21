@@ -1,0 +1,8 @@
+{
+  "buildCommand": "corepack enable && pnpm install && pnpm --filter auth-service run build",
+  "installCommand": "corepack enable && pnpm install",
+  "framework": null,
+  "routes": [
+    { "src": "/(.*)", "dest": "/api/index" }
+  ]
+}

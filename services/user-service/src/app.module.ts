@@ -17,7 +17,7 @@ import { UserModule } from './user/user.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env', '../../.env'],
+      envFilePath: ['.env.production', '.env', '../../.env.production', '../../.env'],
       validate: (config) => envSchema.parse(config),
     }),
     TypeOrmModule.forRootAsync({
@@ -30,6 +30,9 @@ import { UserModule } from './user/user.module';
         synchronize: config.get('NODE_ENV') === 'development',
         migrations: ['dist/database/migrations/*.js'],
         migrationsRun: true,
+        ssl: config.get('NODE_ENV') === 'production'
+          ? { rejectUnauthorized: true }
+          : false,
       }),
     }),
     JwtModule.registerAsync({

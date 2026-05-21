@@ -9,7 +9,16 @@ let sdk: NodeSDK | null = null;
 export function initTracing(serviceName: string, serviceVersion = '1.0.0'): void {
   const otlpEndpoint = process.env['OTEL_EXPORTER_OTLP_ENDPOINT'] ?? 'http://localhost:4317';
 
-  const traceExporter = new OTLPTraceExporter({ url: otlpEndpoint });
+  const headers: Record<string, string> = {};
+  const rawHeaders = process.env['OTEL_EXPORTER_OTLP_HEADERS'];
+  if (rawHeaders) {
+    for (const pair of rawHeaders.split(',')) {
+      const [key, value] = pair.split('=');
+      if (key && value) headers[key.trim()] = value.trim();
+    }
+  }
+
+  const traceExporter = new OTLPTraceExporter({ url: otlpEndpoint, headers });
 
   sdk = new NodeSDK({
     resource: new Resource({

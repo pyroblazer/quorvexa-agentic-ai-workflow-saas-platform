@@ -1,9 +1,11 @@
 import { VersioningType } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { createLogger, initTracing } from '@quorvexa/observability';
 
 import { AppModule } from './app.module';
+import { createServiceRoutes, gatewayProxy } from './proxy/proxy.middleware';
 
 initTracing('gateway', '1.0.0');
 
@@ -11,6 +13,12 @@ async function bootstrap() {
   const logger = createLogger('gateway');
 
   const app = await NestFactory.create(AppModule, { logger: ['error', 'warn', 'log'] });
+
+  const configService = app.get(ConfigService);
+  const routes = createServiceRoutes((key, fb) => configService.get(key, fb));
+
+  // Register proxy directly on Express app — runs before NestJS router
+  app.use(gatewayProxy(routes));
 
   app.enableCors({
     origin: (process.env['CORS_ORIGINS'] ?? 'http://localhost:3000').split(','),

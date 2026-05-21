@@ -17,7 +17,7 @@ import { TemplateModule } from './template/template.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env', '../../.env'],
+      envFilePath: ['.env.production', '.env', '../../.env.production', '../../.env'],
       validate: (config) => envSchema.parse(config),
     }),
     TypeOrmModule.forRootAsync({
@@ -30,6 +30,9 @@ import { TemplateModule } from './template/template.module';
         synchronize: config.get('NODE_ENV') === 'development',
         migrations: ['dist/database/migrations/*.js'],
         migrationsRun: true,
+        ssl: config.get('NODE_ENV') === 'production'
+          ? { rejectUnauthorized: true }
+          : false,
       }),
     }),
     JwtModule.registerAsync({
@@ -42,8 +45,8 @@ import { TemplateModule } from './template/template.module';
     }),
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
     TerminusModule,
-    NotificationModule,
     TemplateModule,
+    NotificationModule,
   ],
   controllers: [HealthController, MetricsController],
 })

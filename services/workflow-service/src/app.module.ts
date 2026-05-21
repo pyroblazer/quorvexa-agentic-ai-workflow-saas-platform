@@ -13,7 +13,7 @@ import { WorkflowModule } from './workflow/workflow.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env', '../../.env'],
+      envFilePath: ['.env.production', '.env', '../../.env.production', '../../.env'],
       validate: (config) => envSchema.parse(config),
     }),
     TypeOrmModule.forRootAsync({
@@ -26,6 +26,9 @@ import { WorkflowModule } from './workflow/workflow.module';
         synchronize: config.get('NODE_ENV') === 'development',
         migrations: ['dist/database/migrations/*.js'],
         migrationsRun: true,
+        ssl: config.get('NODE_ENV') === 'production'
+          ? { rejectUnauthorized: true }
+          : false,
       }),
     }),
     JwtModule.registerAsync({

@@ -1,4 +1,4 @@
-import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TerminusModule } from '@nestjs/terminus';
 import { ThrottlerModule } from '@nestjs/throttler';
@@ -6,13 +6,12 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { envSchema } from './config/env.schema';
 import { HealthController } from './health/health.controller';
 import { MetricsController } from './metrics/metrics.controller';
-import { ProxyMiddleware } from './proxy/proxy.middleware';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env', '../../.env'],
+      envFilePath: ['.env.production', '.env', '../../.env.production', '../../.env'],
       validate: (config) => envSchema.parse(config),
     }),
     ThrottlerModule.forRootAsync({
@@ -31,8 +30,4 @@ import { ProxyMiddleware } from './proxy/proxy.middleware';
   ],
   controllers: [HealthController, MetricsController],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(ProxyMiddleware).forRoutes('*');
-  }
-}
+export class AppModule {}

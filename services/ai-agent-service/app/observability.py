@@ -18,7 +18,13 @@ def init_tracing(service_name: str) -> None:
         }
     )
     provider = TracerProvider(resource=resource)
-    exporter = OTLPSpanExporter(endpoint=settings.otel_exporter_otlp_endpoint)
+    headers: dict[str, str] = {}
+    if settings.otel_exporter_otlp_headers:
+        for pair in settings.otel_exporter_otlp_headers.split(","):
+            key, _, value = pair.partition("=")
+            if key and value:
+                headers[key.strip()] = value.strip()
+    exporter = OTLPSpanExporter(endpoint=settings.otel_exporter_otlp_endpoint, headers=headers)
     provider.add_span_processor(BatchSpanProcessor(exporter))
     trace.set_tracer_provider(provider)
 
