@@ -1,6 +1,6 @@
 {
-  "buildCommand": "corepack enable && pnpm install && pnpm --filter user-service run build",
-  "installCommand": "corepack enable && pnpm install",
+  "buildCommand": "npm i -g pnpm@9 && pnpm install && pnpm --filter user-service run build",
+  "installCommand": "npm i -g pnpm@9 && pnpm install",
   "framework": null,
   "routes": [
     { "src": "/(.*)", "dest": "/api/index" }
