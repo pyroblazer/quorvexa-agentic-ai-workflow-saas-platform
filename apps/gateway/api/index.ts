@@ -5,8 +5,8 @@ import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { initTracing } from '@quorvexa/observability';
 
-import { AppModule } from '../src/app.module';
-import { createServiceRoutes, gatewayProxy } from '../src/proxy/proxy.middleware';
+import { AppModule } from '../dist/app.module';
+import { createServiceRoutes, gatewayProxy } from '../dist/proxy/proxy.middleware';
 
 initTracing('gateway', '1.0.0');
 

@@ -20,6 +20,7 @@
     "@nestjs/config": "^3.3.0",
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/platform-express": "^10.4.15",
+    "express": "^4.21.0",
     "@nestjs/swagger": "^8.1.0",
     "@nestjs/terminus": "^10.2.3",
     "@nestjs/throttler": "^6.3.0",

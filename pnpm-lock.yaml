@@ -83,6 +83,9 @@ importers:
       class-validator:
         specifier: ^0.14.1
         version: 0.14.4
+      express:
+        specifier: ^4.21.0
+        version: 4.22.1
       http-proxy-middleware:
         specifier: ^3.0.3
         version: 3.0.5
@@ -404,6 +407,9 @@ importers:
       class-validator:
         specifier: ^0.14.1
         version: 0.14.4
+      express:
+        specifier: ^4.21.0
+        version: 4.22.1
       passport:
         specifier: ^0.7.0
         version: 0.7.0
@@ -525,6 +531,9 @@ importers:
       class-validator:
         specifier: ^0.14.1
         version: 0.14.4
+      express:
+        specifier: ^4.21.0
+        version: 4.22.1
       kafkajs:
         specifier: ^2.2.4
         version: 2.2.4
@@ -634,6 +643,9 @@ importers:
       class-validator:
         specifier: ^0.14.1
         version: 0.14.4
+      express:
+        specifier: ^4.21.0
+        version: 4.22.1
       passport:
         specifier: ^0.7.0
         version: 0.7.0
@@ -740,6 +752,9 @@ importers:
       class-validator:
         specifier: ^0.14.1
         version: 0.14.4
+      express:
+        specifier: ^4.21.0
+        version: 4.22.1
       kafkajs:
         specifier: ^2.2.4
         version: 2.2.4
