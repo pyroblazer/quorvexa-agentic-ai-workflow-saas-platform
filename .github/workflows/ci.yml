@@ -143,6 +143,9 @@ jobs:
         with: { python-version: "${{ env.PYTHON_VERSION }}" }
       - name: Install Poetry
         run: pip install poetry==1.8.4
+      - name: Check lock file is up to date
+        run: poetry lock --check
+        working-directory: services/ai-agent-service
       - name: Install dependencies
         run: poetry install --no-root
         working-directory: services/ai-agent-service
