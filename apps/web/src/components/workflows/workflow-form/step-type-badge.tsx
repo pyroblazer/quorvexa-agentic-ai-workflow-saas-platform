@@ -1,6 +1,6 @@
+import { Badge } from '@quorvexa/ui';
 import { Bell, Bot, Clock, GitBranch, Globe, Play, Shuffle } from 'lucide-react';
 
-import { Badge } from '@quorvexa/ui';
 
 import type { StepType } from '@/types/api-types';
 

@@ -10,35 +10,29 @@
   ],
   "scripts": {
     "setup": "node scripts/setup.mjs",
-
     "dev": "node scripts/dev.mjs",
     "dev:infra": "docker compose -f infra/docker/docker-compose.yml up -d --force-recreate postgres redis qdrant kafka zookeeper rabbitmq",
     "dev:obs": "docker compose -f infra/docker/docker-compose.obs.yml up -d --force-recreate --remove-orphans",
     "dev:full": "node scripts/dev-full.mjs",
-
     "docker:build": "docker compose -f infra/docker/docker-compose.yml up -d --build --force-recreate --remove-orphans",
     "docker:up": "docker compose -f infra/docker/docker-compose.yml up -d --force-recreate --remove-orphans",
     "docker:down": "docker compose -f infra/docker/docker-compose.yml down",
     "docker:stop": "docker compose -f infra/docker/docker-compose.yml down && docker compose -f infra/docker/docker-compose.obs.yml down",
     "docker:logs": "docker compose -f infra/docker/docker-compose.yml logs -f",
-
     "build": "turbo run build",
     "test": "turbo run test",
     "test:unit": "turbo run test:unit",
     "test:integration": "turbo run test:integration",
     "test:e2e": "turbo run test:e2e",
     "test:api": "npx newman run tests/api/postman-collection.json -e tests/api/postman-environment.json",
-
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "type-check": "turbo run type-check",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
-
     "migrate": "pnpm --filter auth-service run migrate && pnpm --filter user-service run migrate && pnpm --filter workflow-service run migrate",
     "migrate:rollback": "pnpm --filter auth-service run migrate:rollback && pnpm --filter user-service run migrate:rollback && pnpm --filter workflow-service run migrate:rollback",
     "seed": "node scripts/seed.mjs",
-
     "clean": "turbo run clean && rimraf node_modules"
   },
   "devDependencies": {
@@ -54,7 +48,7 @@
     "prettier": "^3.3.3",
     "rimraf": "^5.0.10",
     "ts-jest": "^29.4.9",
-    "turbo": "^1.13.4"
+    "turbo": "^2.9.14"
   },
   "engines": {
     "node": ">=20.0.0",

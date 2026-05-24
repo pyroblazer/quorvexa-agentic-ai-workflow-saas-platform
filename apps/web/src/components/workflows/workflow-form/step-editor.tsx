@@ -1,10 +1,11 @@
+import { Button } from '@quorvexa/ui';
+import { Card, CardContent, CardHeader } from '@quorvexa/ui';
 import { ChevronDown, ChevronUp, X } from 'lucide-react';
 import { useState } from 'react';
 
-import { Button } from '@quorvexa/ui';
-import { Card, CardContent, CardHeader } from '@quorvexa/ui';
 
 import { StepTypeBadge } from './step-type-badge';
+
 import type { StepType } from '@/types/api-types';
 
 export interface StepDraft {

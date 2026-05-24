@@ -1,3 +1,4 @@
+import { useAuthStore } from '@/store/auth.store';
 import type {
   AgentEmbedResult,
   AgentRunResult,
@@ -13,7 +14,6 @@ import type {
   Workflow,
 } from '@/types/api-types';
 
-import { useAuthStore } from '@/store/auth.store';
 
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? '';
 

@@ -1,5 +1,5 @@
-import { StepTypeBadge } from './step-type-badge';
 import type { StepDraft } from './step-editor';
+import { StepTypeBadge } from './step-type-badge';
 
 export function WorkflowFormPreview({ steps }: { steps: StepDraft[] }) {
   if (steps.length === 0) {

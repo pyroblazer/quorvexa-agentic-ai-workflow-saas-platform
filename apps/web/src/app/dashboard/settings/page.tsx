@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 
 import { Button } from '@quorvexa/ui';
 import { Card, CardContent, CardHeader } from '@quorvexa/ui';
 import { Spinner } from '@quorvexa/ui';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 
 import { usePreferences, useResetPreferences, useUpdatePreferences } from '@/hooks/use-preferences';
 

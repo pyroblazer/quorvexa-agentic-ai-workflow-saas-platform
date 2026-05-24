@@ -1,18 +1,15 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { Badge } from '@quorvexa/ui';
+import { Button } from '@quorvexa/ui';
 import { formatDistanceToNow } from 'date-fns';
 import { Play, Send, Trash2, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
-import { Badge } from '@quorvexa/ui';
-import { Button } from '@quorvexa/ui';
-
 import { useActivateWorkflow, useDeleteWorkflow, useTriggerWorkflow, useWorkflows } from '@/hooks/use-workflows';
-import { workflowApi } from '@/lib/api';
 import { useWorkflowFilters } from '@/store/workflow-filters.store';
-import type { TriggerType, Workflow, WorkflowStatus, WorkflowStep } from '@/types/api-types';
+import type { Workflow, WorkflowStatus } from '@/types/api-types';
 
 const STATUS_VARIANTS: Record<WorkflowStatus, 'outline' | 'success' | 'warning' | 'default'> = {
   draft: 'outline',
