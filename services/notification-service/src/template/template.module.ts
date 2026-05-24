@@ -4,6 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+
 import { NotificationTemplateEntity } from './entities/notification-template.entity';
 import { TemplateController } from './template.controller';
 import { TemplateService } from './template.service';

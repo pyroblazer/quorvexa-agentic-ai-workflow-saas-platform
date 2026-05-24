@@ -172,6 +172,8 @@ export interface AuthRegisterResponse {
   lastName: string;
   role: string;
   tenantId: string;
+  accessToken: string;
+  user: User;
 }
 
 export interface AuthRefreshResponse {

@@ -113,7 +113,7 @@ export class WorkflowRunService {
     const parts = path.split('.');
     let value: unknown = context;
     for (const part of parts) {
-      if (value == null || typeof value !== 'object') return undefined;
+      if (value === null || value === undefined || typeof value !== 'object') return undefined;
       value = (value as Record<string, unknown>)[part];
     }
     return value;

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { createLogger } from '@quorvexa/observability';
 import { InjectRepository } from '@nestjs/typeorm';
+import { createLogger } from '@quorvexa/observability';
 import { Repository } from 'typeorm';
 
 import { AuditLogEntity, AuditAction } from './entities/audit-log.entity';

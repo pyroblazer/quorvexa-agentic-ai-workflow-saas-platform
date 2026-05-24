@@ -5,8 +5,8 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import type { Response } from 'express';
 import { createLogger } from '@quorvexa/observability';
+import type { Response } from 'express';
 
 const logger = createLogger('workflow-service:exception-filter');
 

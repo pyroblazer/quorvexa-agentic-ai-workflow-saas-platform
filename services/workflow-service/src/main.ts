@@ -3,10 +3,10 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { createLogger, initTracing } from '@quorvexa/observability';
 
-initTracing('workflow-service', '1.0.0');
-
-import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { AppModule } from './app.module';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+
+initTracing('workflow-service', '1.0.0');
 
 async function bootstrap() {
   const logger = createLogger('workflow-service');

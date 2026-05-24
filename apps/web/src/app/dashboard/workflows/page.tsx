@@ -12,7 +12,7 @@ import { Button } from '@quorvexa/ui';
 import { useActivateWorkflow, useDeleteWorkflow, useTriggerWorkflow, useWorkflows } from '@/hooks/use-workflows';
 import { workflowApi } from '@/lib/api';
 import { useWorkflowFilters } from '@/store/workflow-filters.store';
-import type { TriggerType, WorkflowStatus, WorkflowStep } from '@/types/api-types';
+import type { TriggerType, Workflow, WorkflowStatus, WorkflowStep } from '@/types/api-types';
 
 const STATUS_VARIANTS: Record<WorkflowStatus, 'outline' | 'success' | 'warning' | 'default'> = {
   draft: 'outline',

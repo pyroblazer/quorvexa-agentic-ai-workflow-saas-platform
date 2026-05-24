@@ -3,11 +3,11 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { createLogger, initTracing } from '@quorvexa/observability';
 
+import { AppModule } from './app.module';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+
 // Must be called before any other imports to ensure instrumentation works
 initTracing('auth-service', '1.0.0');
-
-import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
-import { AppModule } from './app.module';
 
 async function bootstrap() {
   const logger = createLogger('auth-service');
