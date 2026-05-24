@@ -37,7 +37,7 @@
 
     "migrate": "pnpm --filter auth-service run migrate && pnpm --filter user-service run migrate && pnpm --filter workflow-service run migrate",
     "migrate:rollback": "pnpm --filter auth-service run migrate:rollback && pnpm --filter user-service run migrate:rollback && pnpm --filter workflow-service run migrate:rollback",
-    "seed": "pnpm --filter auth-service run seed",
+    "seed": "node scripts/seed.mjs",
 
     "clean": "turbo run clean && rimraf node_modules"
   },

@@ -6,6 +6,7 @@ import { createLogger, initTracing } from '@quorvexa/observability';
 // Must be called before any other imports to ensure instrumentation works
 initTracing('auth-service', '1.0.0');
 
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -30,6 +31,8 @@ async function bootstrap() {
       transformOptions: { enableImplicitConversion: true },
     }),
   );
+
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   // API versioning — prefix all routes with /api/v{version}
   app.setGlobalPrefix('api');

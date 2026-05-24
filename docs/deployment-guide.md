@@ -53,6 +53,8 @@ docker compose -f infra/docker/docker-compose.yml down -v
 
 ## Cloud Deployment (AWS EKS)
 
+> **For production deployment using Vercel + Supabase, see the [Production Deployment Guide](production-deployment-guide.md).**
+
 ### Prerequisites
 
 - AWS CLI configured with deployment permissions

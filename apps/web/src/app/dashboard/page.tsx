@@ -23,7 +23,7 @@ export default function DashboardPage() {
           </p>
         </div>
         <a
-          href="/workflows/new"
+          href="/dashboard/dashboard/workflows/new"
           className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
         >
           New Workflow
@@ -57,7 +57,7 @@ export default function DashboardPage() {
         ) : workflows?.items.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground">
             No workflows yet.{' '}
-            <a href="/workflows/new" className="text-primary hover:underline">
+            <a href="/dashboard/workflows/new" className="text-primary hover:underline">
               Create your first workflow.
             </a>
           </div>
@@ -69,7 +69,7 @@ export default function DashboardPage() {
                 className="flex items-center justify-between p-4 border-b border-border last:border-0 hover:bg-muted/50 transition-colors"
               >
                 <div>
-                  <a href={`/workflows/${wf.id}`} className="font-medium hover:underline">
+                  <a href={`/dashboard/workflows/${wf.id}`} className="font-medium hover:underline">
                     {wf.name}
                   </a>
                   <p className="text-xs text-muted-foreground mt-0.5">{wf.status}</p>

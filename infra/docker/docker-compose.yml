@@ -13,6 +13,7 @@ volumes:
   qdrant-data:
   kafka-data:
   zookeeper-data:
+  ollama-data:
 
 services:
 
@@ -150,9 +151,8 @@ services:
       - quorvexa-net
 
   # ────────────────────────────
-  # Ollama — local LLM serving
-  # Start after: docker compose up
-  # Then: docker compose exec ollama ollama pull llama3
+  # Ollama — local LLM serving (CPU default; use docker-compose.gpu.yml override for GPU)
+  # Models are persisted in ~/.ollama and pulled automatically by scripts/dev.mjs
   # ────────────────────────────
   ollama:
     image: ollama/ollama:latest
@@ -160,18 +160,15 @@ services:
     ports:
       - "${OLLAMA_PORT:-11434}:11434"
     volumes:
-      - ~/.ollama:/root/.ollama
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+      - ollama-data:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:11434/api/tags || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
     networks:
       - quorvexa-net
-    profiles:
-      - llm
 
   # ────────────────────────────
   # Auth Service

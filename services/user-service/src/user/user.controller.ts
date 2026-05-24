@@ -43,7 +43,7 @@ export class UserController {
   @Get('me')
   @ApiOperation({ summary: 'Get current user profile' })
   findMe(@Request() req: AuthenticatedRequest) {
-    return this.userService.findByUserId(req.user.id as string);
+    return this.userService.findByUserId(req.user.sub as string);
   }
 
   @Get(':id')
@@ -65,7 +65,7 @@ export class UserController {
   @Patch('me')
   @ApiOperation({ summary: 'Update current user profile' })
   updateMe(@Body() dto: UpdateProfileDto, @Request() req: AuthenticatedRequest) {
-    return this.userService.updateByUserId(req.user.id as string, dto);
+    return this.userService.updateByUserId(req.user.sub as string, dto);
   }
 
   @Patch(':id')

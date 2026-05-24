@@ -13,21 +13,85 @@ import type {
   Workflow,
 } from '@/types/api-types';
 
+import { useAuthStore } from '@/store/auth.store';
+
 const API_BASE = process.env['NEXT_PUBLIC_API_URL'] ?? '';
 
+let _isRefreshing = false;
+let _refreshPromise: Promise<string | null> | null = null;
+
+async function tryRefreshToken(): Promise<string | null> {
+  if (_isRefreshing && _refreshPromise) return _refreshPromise;
+  _isRefreshing = true;
+  _refreshPromise = (async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/auth/refresh`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!res.ok) return null;
+      const data = await res.json() as { accessToken: string };
+      const store = useAuthStore.getState();
+      if (store.user) {
+        store.setTokens(data.accessToken, store.user);
+      }
+      return data.accessToken;
+    } catch {
+      return null;
+    } finally {
+      _isRefreshing = false;
+      _refreshPromise = null;
+    }
+  })();
+  return _refreshPromise;
+}
+
 async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE}${url}`, {
+  const { accessToken } = useAuthStore.getState();
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(init?.headers as Record<string, string>),
+  };
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
+  }
+
+  let response = await fetch(`${API_BASE}${url}`, {
     ...init,
     credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...init?.headers,
-    },
+    headers,
   });
 
+  if (response.status === 401 && accessToken) {
+    const newToken = await tryRefreshToken();
+    if (newToken) {
+      headers['Authorization'] = `Bearer ${newToken}`;
+      response = await fetch(`${API_BASE}${url}`, {
+        ...init,
+        credentials: 'include',
+        headers,
+      });
+    } else {
+      useAuthStore.getState().logout().catch(() => {});
+      if (typeof window !== 'undefined') {
+        window.location.href = '/auth/login';
+      }
+      throw new Error('Session expired. Please log in again.');
+    }
+  }
+
   if (!response.ok) {
-    const error = await response.json() as { message?: string };
-    throw new Error(error.message ?? `HTTP ${response.status}`);
+    let message = `HTTP ${response.status}`;
+    try {
+      const error = await response.json() as { message?: string; error?: string };
+      message = error.message ?? error.error ?? message;
+    } catch { /* body was empty or non-JSON */ }
+    throw new Error(message);
+  }
+
+  if (response.status === 204) {
+    return undefined as T;
   }
 
   return response.json() as Promise<T>;

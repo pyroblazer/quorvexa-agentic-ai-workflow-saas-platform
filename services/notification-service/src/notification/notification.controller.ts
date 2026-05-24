@@ -44,7 +44,7 @@ export class NotificationController {
   @Get('me')
   @ApiOperation({ summary: 'List notifications for the current user' })
   findMine(@Request() req: AuthenticatedRequest, @Query() query: ListNotificationsDto) {
-    return this.notifService.findByUser(req.user.id as string, query);
+    return this.notifService.findByUser(req.user.sub, query);
   }
 
   @Get(':id')

@@ -55,7 +55,7 @@ export class WorkflowController {
   @ApiOperation({ summary: 'Create a new workflow' })
   @ApiResponse({ status: 201, description: 'Workflow created' })
   create(@Body() dto: CreateWorkflowDto, @Request() req: AuthenticatedRequest) {
-    return this.workflowService.create(dto, req.user.id, req.user.tenantId);
+    return this.workflowService.create(dto, req.user.sub, req.user.tenantId);
   }
 
   @Patch(':id')
@@ -65,7 +65,7 @@ export class WorkflowController {
     @Body() dto: UpdateWorkflowDto,
     @Request() req: AuthenticatedRequest,
   ) {
-    return this.workflowService.update(id, dto, req.user.id, req.user.tenantId);
+    return this.workflowService.update(id, dto, req.user.sub, req.user.tenantId);
   }
 
   @Delete(':id')

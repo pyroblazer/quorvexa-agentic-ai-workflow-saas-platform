@@ -17,7 +17,7 @@ from app.config import settings
 
 logger = structlog.get_logger()
 
-VECTOR_SIZE = 384  # all-MiniLM-L6-v2 produces 384-dimensional embeddings
+VECTOR_SIZE = settings.embedding_dimensions
 
 
 class VectorStoreService:
@@ -33,7 +33,9 @@ class VectorStoreService:
         if self._provider == "supabase":
             from supabase import create_client
 
-            self._supabase = create_client(settings.supabase_url, settings.supabase_service_role_key)
+            self._supabase = create_client(
+                settings.supabase_url, settings.supabase_service_role_key
+            )
         else:
             self.client = AsyncQdrantClient(
                 url=settings.vector_db_url,
@@ -116,12 +118,14 @@ class VectorStoreService:
         vector = await self.embeddings.aembed_query(content)
         vector_str = "[" + ",".join(str(v) for v in vector) + "]"
 
-        self._supabase.table(self.collection).insert({
-            "id": point_id,
-            "content": content,
-            "metadata": metadata,
-            "embedding": vector_str,
-        }).execute()
+        self._supabase.table(self.collection).insert(
+            {
+                "id": point_id,
+                "content": content,
+                "metadata": metadata,
+                "embedding": vector_str,
+            }
+        ).execute()
 
         return point_id
 
@@ -138,21 +142,26 @@ class VectorStoreService:
         if filters:
             filter_json = filters
 
-        response = self._supabase.rpc("match_documents", {
-            "query_embedding": vector_str,
-            "match_table": self.collection,
-            "match_filter": filter_json,
-            "match_limit": limit,
-        }).execute()
+        response = self._supabase.rpc(
+            "match_documents",
+            {
+                "query_embedding": vector_str,
+                "match_table": self.collection,
+                "match_filter": filter_json,
+                "match_limit": limit,
+            },
+        ).execute()
 
         results = []
         for row in response.data:
-            results.append({
-                "id": str(row.get("id", "")),
-                "score": row.get("similarity", 0.0),
-                "content": row.get("content", ""),
-                "metadata": row.get("metadata", {}),
-            })
+            results.append(
+                {
+                    "id": str(row.get("id", "")),
+                    "score": row.get("similarity", 0.0),
+                    "content": row.get("content", ""),
+                    "metadata": row.get("metadata", {}),
+                }
+            )
         return results
 
     # --- Unified interface ---

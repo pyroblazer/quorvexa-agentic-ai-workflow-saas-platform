@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Poetry
-RUN pip install --no-cache-dir poetry==1.8.4
+RUN pip install --no-cache-dir poetry==2.3.4
 ENV POETRY_VIRTUALENVS_IN_PROJECT=1 \
     POETRY_NO_INTERACTION=1 \
     POETRY_CACHE_DIR=/tmp/poetry_cache
@@ -16,7 +16,7 @@ ENV POETRY_VIRTUALENVS_IN_PROJECT=1 \
 # ── dependency stage ──────────────────────────────────────────────────────────
 FROM base AS deps
 COPY services/ai-agent-service/pyproject.toml services/ai-agent-service/poetry.lock* ./
-RUN poetry install --no-root --only main && rm -rf $POETRY_CACHE_DIR
+RUN poetry lock && poetry install --no-root --only main && rm -rf $POETRY_CACHE_DIR
 
 # ── production stage ──────────────────────────────────────────────────────────
 FROM python:3.11-slim AS runner

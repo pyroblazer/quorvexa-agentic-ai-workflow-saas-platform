@@ -8,12 +8,9 @@ import { useAuthStore } from '@/store/auth.store';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard' },
-  { href: '/workflows', label: 'Workflows' },
-  { href: '/agents', label: 'AI Agents' },
-  { href: '/settings', label: 'Settings' },
-  ...(process.env.NEXT_PUBLIC_ENABLE_DEV_TOOLS === 'true'
-    ? [{ href: '/dashboard/dev' as const, label: 'Dev Playground' as const }]
-    : []),
+  { href: '/dashboard/workflows', label: 'Workflows' },
+  { href: '/dashboard/agents', label: 'AI Agents' },
+  { href: '/dashboard/settings', label: 'Settings' },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -76,6 +73,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </li>
               );
             })}
+            {process.env.NEXT_PUBLIC_ENABLE_DEV_TOOLS === 'true' && user && (user.role === 'super_admin' || user.role === 'admin') && (
+              <li>
+                <Link
+                  href="/dashboard/dev"
+                  className={`flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                    pathname.startsWith('/dashboard/dev')
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-foreground hover:bg-accent'
+                  }`}
+                  aria-current={pathname.startsWith('/dashboard/dev') ? 'page' : undefined}
+                >
+                  Dev Playground
+                </Link>
+              </li>
+            )}
           </ul>
         </nav>
 

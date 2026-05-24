@@ -95,12 +95,7 @@ class AgentService:
                 return_intermediate_steps=True,
             )
 
-            result = await executor.ainvoke(
-                {
-                    "input": prompt,
-                    "context": context,
-                }
-            )
+            result = await executor.ainvoke({"input": prompt})
 
             duration = time.time() - start
             ai_request_duration.labels(model=model_name, operation="agent_run").observe(duration)

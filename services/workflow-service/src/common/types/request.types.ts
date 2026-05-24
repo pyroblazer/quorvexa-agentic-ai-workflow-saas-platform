@@ -1,10 +1,11 @@
 import type { Request } from 'express';
 
 export interface AuthenticatedUser {
-  id: string;
+  sub: string;
   email: string;
   role: string;
   tenantId: string;
+  [key: string]: unknown;
 }
 
 export interface AuthenticatedRequest extends Request {

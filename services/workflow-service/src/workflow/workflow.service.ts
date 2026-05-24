@@ -85,8 +85,24 @@ export class WorkflowService {
     tenantId: string,
   ): Promise<WorkflowEntity> {
     const workflow = await this.findOne(id, tenantId);
-    Object.assign(workflow, dto);
-    await this.workflowRepo.save(workflow);
+
+    const { steps: dtoSteps, ...workflowFields } = dto;
+    Object.assign(workflow, workflowFields);
+
+    if (dtoSteps !== undefined) {
+      await this.dataSource.transaction(async (manager) => {
+        await manager.remove(workflow.steps ?? []);
+        const newSteps = dtoSteps.map((step, index) =>
+          manager.create(WorkflowStepEntity, {
+            ...step,
+            workflowId: workflow.id,
+            order: step.order ?? index,
+          }),
+        );
+        workflow.steps = await manager.save(newSteps);
+      });
+    }
+
     return this.findOne(id, tenantId);
   }
 

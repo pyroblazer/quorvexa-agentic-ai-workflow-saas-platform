@@ -13,23 +13,23 @@ def test_default_settings():
     assert s.redis_port == 6379
     assert s.redis_db == 0
     assert s.log_level == "info"
-    assert isinstance(s.cors_origins, list)
+    assert isinstance(s.cors_origins, str)
     assert "http://localhost:3000" in s.cors_origins
 
 
 def test_cors_origins_parsed_from_string():
     s = Settings(cors_origins="http://a.com,http://b.com")
-    assert s.cors_origins == ["http://a.com", "http://b.com"]
+    assert s.cors_origins_list == ["http://a.com", "http://b.com"]
 
 
 def test_cors_origins_parsed_from_string_with_spaces():
     s = Settings(cors_origins=" http://a.com , http://b.com ")
-    assert s.cors_origins == ["http://a.com", "http://b.com"]
+    assert s.cors_origins_list == ["http://a.com", "http://b.com"]
 
 
-def test_cors_origins_list_passthrough():
-    s = Settings(cors_origins=["http://a.com", "http://b.com"])
-    assert s.cors_origins == ["http://a.com", "http://b.com"]
+def test_cors_origins_single():
+    s = Settings(cors_origins="http://localhost:3000")
+    assert s.cors_origins_list == ["http://localhost:3000"]
 
 
 def test_port_override():

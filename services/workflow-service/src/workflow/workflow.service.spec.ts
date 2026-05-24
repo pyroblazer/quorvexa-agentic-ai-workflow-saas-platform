@@ -1,4 +1,5 @@
 import { NotFoundException, ForbiddenException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
@@ -68,7 +69,11 @@ describe('WorkflowService', () => {
     dataSource = {
       transaction: jest.fn((cb) => cb({
         create: jest.fn().mockImplementation((_, data) => data),
-        save: jest.fn().mockImplementation((data) => Promise.resolve({ ...data, id: data.id ?? 'wf-new' })),
+        save: jest.fn().mockImplementation((data) => {
+          if (Array.isArray(data)) return Promise.resolve(data);
+          return Promise.resolve({ ...data, id: data.id ?? 'wf-new' });
+        }),
+        remove: jest.fn().mockResolvedValue(undefined),
       })),
     };
 
@@ -155,15 +160,16 @@ describe('WorkflowService', () => {
   describe('update', () => {
     it('updates workflow properties', async () => {
       const wf = makeWorkflow();
-      workflowRepo.findOne.mockResolvedValue(wf);
-      workflowRepo.save.mockResolvedValue({ ...wf, name: 'Updated' });
-
       const updatedWf = { ...wf, name: 'Updated' };
-      workflowRepo.findOne.mockResolvedValueOnce(wf).mockResolvedValueOnce(updatedWf);
 
-      const _result = await service.update('wf-uuid-1', { name: 'Updated' }, 'user-1', 'tenant-1');
+      workflowRepo.findOne
+        .mockResolvedValueOnce(wf)
+        .mockResolvedValueOnce(updatedWf);
 
-      expect(workflowRepo.save).toHaveBeenCalled();
+      const result = await service.update('wf-uuid-1', { name: 'Updated' }, 'user-1', 'tenant-1');
+
+      expect(result.name).toBe('Updated');
+      expect(workflowRepo.findOne).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -223,6 +229,7 @@ describe('WorkflowRunService', () => {
       providers: [
         WorkflowRunService,
         { provide: getRepositoryToken(WorkflowStepEntity), useValue: stepRepo },
+        { provide: JwtService, useValue: { sign: jest.fn().mockReturnValue('test-token') } },
       ],
     }).compile();
 

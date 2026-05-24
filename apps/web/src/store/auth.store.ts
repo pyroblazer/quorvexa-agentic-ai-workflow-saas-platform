@@ -70,7 +70,7 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'quorvexa-auth',
       storage: createJSONStorage(() => sessionStorage),
-      partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }),
+      partialize: (state) => ({ user: state.user, accessToken: state.accessToken, isAuthenticated: state.isAuthenticated }),
       onRehydrateStorage: () => (state) => {
         if (state) state._hasHydrated = true;
       },

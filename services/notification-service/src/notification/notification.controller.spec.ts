@@ -24,7 +24,7 @@ function makeNotification(overrides: Record<string, unknown> = {}) {
 }
 
 function makeRequest() {
-  return { user: { id: 'user-1', tenantId: 'tenant-1' } } as any;
+  return { user: { sub: 'user-1', id: 'user-1', tenantId: 'tenant-1' } } as any;
 }
 
 describe('NotificationController', () => {

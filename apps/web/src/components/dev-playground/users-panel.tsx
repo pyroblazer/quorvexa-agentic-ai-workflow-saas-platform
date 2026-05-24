@@ -12,11 +12,11 @@ import { useDevPlaygroundStore } from '@/store/dev-playground.store';
 
 
 const createFields: FormField[] = [
-  { name: 'firstName', label: 'First Name', defaultValue: 'Dev' },
-  { name: 'lastName', label: 'Last Name', defaultValue: 'User' },
-  { name: 'title', label: 'Title', defaultValue: 'Engineer' },
-  { name: 'department', label: 'Department', defaultValue: 'Engineering' },
-  { name: 'phone', label: 'Phone', defaultValue: '' },
+  { name: 'firstName', label: 'First Name', defaultValue: 'Dev', placeholder: 'e.g. Jane' },
+  { name: 'lastName', label: 'Last Name', defaultValue: 'User', placeholder: 'e.g. Doe' },
+  { name: 'title', label: 'Title', defaultValue: 'Engineer', placeholder: 'e.g. Senior Software Engineer' },
+  { name: 'department', label: 'Department', defaultValue: 'Engineering', placeholder: 'e.g. Engineering, Product, Design' },
+  { name: 'phone', label: 'Phone', defaultValue: '', placeholder: 'e.g. +1 (555) 123-4567' },
 ];
 
 export function UsersPanel() {

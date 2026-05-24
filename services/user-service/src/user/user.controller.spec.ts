@@ -30,7 +30,7 @@ function makeProfile(overrides: Record<string, unknown> = {}) {
 
 function makeRequest(overrides: Record<string, unknown> = {}) {
   return {
-    user: { id: 'user-1', tenantId: 'tenant-1', role: 'member' },
+    user: { sub: 'user-1', id: 'user-1', tenantId: 'tenant-1', role: 'member' },
     ...overrides,
   } as any;
 }

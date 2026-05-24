@@ -25,18 +25,18 @@ export class PreferencesController {
   @Get()
   @ApiOperation({ summary: 'Get current user preferences' })
   findMe(@Request() req: AuthenticatedRequest) {
-    return this.prefsService.findOrCreate(req.user.id as string, req.user.tenantId as string);
+    return this.prefsService.findOrCreate(req.user.sub as string, req.user.tenantId as string);
   }
 
   @Patch()
   @ApiOperation({ summary: 'Update current user preferences' })
   update(@Body() dto: UpdatePreferencesDto, @Request() req: AuthenticatedRequest) {
-    return this.prefsService.update(req.user.id as string, req.user.tenantId as string, dto);
+    return this.prefsService.update(req.user.sub as string, req.user.tenantId as string, dto);
   }
 
   @Delete()
   @ApiOperation({ summary: 'Reset preferences to defaults' })
   reset(@Request() req: AuthenticatedRequest) {
-    return this.prefsService.reset(req.user.id as string);
+    return this.prefsService.reset(req.user.sub as string);
   }
 }

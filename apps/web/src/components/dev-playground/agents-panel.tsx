@@ -22,16 +22,16 @@ function randomFrom<T>(arr: readonly T[]): T {
 }
 
 const runFields: FormField[] = [
-  { name: 'prompt', label: 'Prompt', defaultValue: 'Summarize the following text in 3 bullet points' },
-  { name: 'sessionId', label: 'Session ID (optional)', defaultValue: '' },
+  { name: 'prompt', label: 'Prompt', defaultValue: 'Summarize the following text in 3 bullet points', placeholder: 'e.g. Summarize the following text in 3 bullet points' },
+  { name: 'sessionId', label: 'Session ID (optional)', defaultValue: '', placeholder: 'e.g. sess_abc123 (leave blank for new session)' },
 ];
 
 const embedFields: FormField[] = [
-  { name: 'content', label: 'Content', defaultValue: 'Quorvexa is an agentic AI workflow SaaS platform.' },
+  { name: 'content', label: 'Content', defaultValue: 'Quorvexa is an agentic AI workflow SaaS platform.', placeholder: 'e.g. Quorvexa is an agentic AI workflow SaaS platform.' },
 ];
 
 const searchFields: FormField[] = [
-  { name: 'query', label: 'Query', defaultValue: 'What is Quorvexa?' },
+  { name: 'query', label: 'Query', defaultValue: 'What is Quorvexa?', placeholder: 'e.g. What is Quorvexa?' },
 ];
 
 export function AgentsPanel() {

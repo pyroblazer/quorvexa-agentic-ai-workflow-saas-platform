@@ -19,9 +19,9 @@ function randomSuffix() {
 
 const sendFields: FormField[] = [
   { name: 'channel', label: 'Channel', type: 'select', defaultValue: 'in_app', options: ['email', 'webhook', 'in_app', 'sms', 'slack'] },
-  { name: 'subject', label: 'Subject', defaultValue: 'Test Notification' },
-  { name: 'body', label: 'Body', defaultValue: 'Hello from the playground!' },
-  { name: 'recipient', label: 'Recipient', defaultValue: '' },
+  { name: 'subject', label: 'Subject', defaultValue: 'Test Notification', placeholder: 'e.g. Deployment Complete' },
+  { name: 'body', label: 'Body', defaultValue: 'Hello from the playground!', placeholder: 'e.g. Your workflow finished successfully.' },
+  { name: 'recipient', label: 'Recipient', defaultValue: '', placeholder: 'e.g. user@example.com (leave blank for self)' },
 ];
 
 export function NotificationsPanel() {

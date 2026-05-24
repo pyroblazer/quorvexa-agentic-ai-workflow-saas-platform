@@ -12,15 +12,15 @@ import { useDevPlaygroundStore } from '@/store/dev-playground.store';
 
 
 const loginFields: FormField[] = [
-  { name: 'email', label: 'Email', type: 'email', defaultValue: 'admin@quorvexa.dev' },
-  { name: 'password', label: 'Password', type: 'password', defaultValue: 'Qu0rv3xa!Admin' },
+  { name: 'email', label: 'Email', type: 'email', defaultValue: 'admin@quorvexa.dev', placeholder: 'e.g. admin@quorvexa.dev' },
+  { name: 'password', label: 'Password', type: 'password', defaultValue: 'Qu0rv3xa!Admin', placeholder: 'e.g. Qu0rv3xa!Admin' },
 ];
 
 const registerFields: FormField[] = [
-  { name: 'email', label: 'Email', type: 'email', defaultValue: 'dev@quorvexa.io' },
-  { name: 'password', label: 'Password', type: 'password', defaultValue: 'DevPass123!' },
-  { name: 'firstName', label: 'First Name', type: 'text', defaultValue: 'Dev' },
-  { name: 'lastName', label: 'Last Name', type: 'text', defaultValue: 'User' },
+  { name: 'email', label: 'Email', type: 'email', defaultValue: 'dev@quorvexa.io', placeholder: 'e.g. user@example.com' },
+  { name: 'password', label: 'Password', type: 'password', defaultValue: 'DevPass123!', placeholder: 'Min 8 chars, 1 uppercase, 1 number, 1 symbol' },
+  { name: 'firstName', label: 'First Name', type: 'text', defaultValue: 'Dev', placeholder: 'e.g. Jane' },
+  { name: 'lastName', label: 'Last Name', type: 'text', defaultValue: 'User', placeholder: 'e.g. Doe' },
 ];
 
 function randomSuffix() {

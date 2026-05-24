@@ -125,7 +125,8 @@ LLM_MODEL=llama3
 - [System Design](docs/system-design.md)
 - [Developer Guide](docs/developer-guide.md)
 - [Frontend User Guide](docs/frontend-user-guide.md)
-- [Deployment Guide](docs/deployment-guide.md)
+- [Deployment Guide](docs/deployment-guide.md) (Docker, AWS EKS, Azure AKS)
+- [Production Deployment Guide](docs/production-deployment-guide.md) (Vercel + Supabase + SaaS)
 
 ## License
 

@@ -15,16 +15,16 @@ function randomSuffix() {
 }
 
 const createFields: FormField[] = [
-  { name: 'name', label: 'Name', defaultValue: 'Welcome Email' },
-  { name: 'slug', label: 'Slug', defaultValue: 'welcome-email' },
-  { name: 'subject', label: 'Subject', defaultValue: 'Welcome to Quorvexa!' },
-  { name: 'bodyTemplate', label: 'Body Template', defaultValue: 'Hello {{name}}, welcome aboard!' },
+  { name: 'name', label: 'Name', defaultValue: 'Welcome Email', placeholder: 'e.g. Welcome Email' },
+  { name: 'slug', label: 'Slug', defaultValue: 'welcome-email', placeholder: 'e.g. welcome-email (URL-safe)' },
+  { name: 'subject', label: 'Subject', defaultValue: 'Welcome to Quorvexa!', placeholder: 'e.g. Welcome to Quorvexa, {{name}}!' },
+  { name: 'bodyTemplate', label: 'Body Template', defaultValue: 'Hello {{name}}, welcome aboard!', placeholder: 'Use {{variable}} for dynamic values' },
   { name: 'channel', label: 'Channel', type: 'select', defaultValue: 'email', options: ['email', 'webhook', 'in_app', 'sms', 'slack'] },
-  { name: 'description', label: 'Description', defaultValue: 'Welcome email for new users' },
+  { name: 'description', label: 'Description', defaultValue: 'Welcome email for new users', placeholder: 'e.g. Sent when a user signs up' },
 ];
 
 const renderFields: FormField[] = [
-  { name: 'name', label: 'Variable: name', defaultValue: 'John' },
+  { name: 'name', label: 'Variable: name', defaultValue: 'John', placeholder: 'e.g. John' },
 ];
 
 export function TemplatesPanel() {

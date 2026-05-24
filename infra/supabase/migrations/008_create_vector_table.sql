@@ -9,7 +9,7 @@ CREATE TABLE public.quorvexa_embeddings (
     id        uuid          PRIMARY KEY DEFAULT gen_random_uuid(),
     content   text          NOT NULL,
     metadata  jsonb         NOT NULL DEFAULT '{}',
-    embedding vector(384)   -- all-MiniLM-L6-v2 produces 384-dim vectors
+    embedding vector(384)   -- all-MiniLM-L6-v2 produces 384-dimensional embeddings
 );
 
 -- HNSW index for fast approximate nearest-neighbor search.

@@ -15,7 +15,7 @@ import { UserModule } from './user/user.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env.production', '.env', '../../.env.production', '../../.env'],
+      envFilePath: ['.env', '../../.env', '.env.production', '../../.env.production'],
       validate: (config) => envSchema.parse(config),
       expandVariables: true,
     }),

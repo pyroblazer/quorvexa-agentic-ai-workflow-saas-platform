@@ -13,7 +13,7 @@ import { WorkflowModule } from './workflow/workflow.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env.production', '.env', '../../.env.production', '../../.env'],
+      envFilePath: ['.env', '../../.env', '.env.production', '../../.env.production'],
       validate: (config) => envSchema.parse(config),
     }),
     TypeOrmModule.forRootAsync({
@@ -23,7 +23,7 @@ import { WorkflowModule } from './workflow/workflow.module';
         type: 'postgres',
         url: config.getOrThrow<string>('DATABASE_URL'),
         entities: [WorkflowEntity, WorkflowStepEntity],
-        synchronize: config.get('NODE_ENV') === 'development',
+        synchronize: false,
         migrations: ['dist/database/migrations/*.js'],
         migrationsRun: true,
         ssl: config.get('NODE_ENV') === 'production'

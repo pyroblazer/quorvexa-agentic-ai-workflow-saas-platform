@@ -17,8 +17,8 @@ function randomSuffix() {
 }
 
 const createFields: FormField[] = [
-  { name: 'name', label: 'Name', defaultValue: 'Test Workflow' },
-  { name: 'description', label: 'Description', defaultValue: 'Created from playground' },
+  { name: 'name', label: 'Name', defaultValue: 'Test Workflow', placeholder: 'e.g. Daily Report Pipeline' },
+  { name: 'description', label: 'Description', defaultValue: 'Created from playground', placeholder: 'e.g. Runs every morning at 9 AM' },
   { name: 'triggerType', label: 'Trigger Type', type: 'select', defaultValue: 'manual', options: [...TRIGGER_TYPES] },
 ];
 

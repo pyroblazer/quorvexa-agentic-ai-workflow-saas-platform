@@ -11,8 +11,8 @@ import { useDevPlaygroundStore } from '@/store/dev-playground.store';
 
 const updateFields: FormField[] = [
   { name: 'theme', label: 'Theme', type: 'select', defaultValue: 'dark', options: ['light', 'dark', 'system'] },
-  { name: 'locale', label: 'Locale', defaultValue: 'en-US' },
-  { name: 'timezone', label: 'Timezone', defaultValue: 'America/New_York' },
+  { name: 'locale', label: 'Locale', defaultValue: 'en-US', placeholder: 'e.g. en-US, fr-FR, de-DE' },
+  { name: 'timezone', label: 'Timezone', defaultValue: 'America/New_York', placeholder: 'e.g. America/New_York, Europe/London' },
   { name: 'dateFormat', label: 'Date Format', type: 'select', defaultValue: 'YYYY-MM-DD', options: ['MM/DD/YYYY', 'DD/MM/YYYY', 'YYYY-MM-DD'] },
 ];
 

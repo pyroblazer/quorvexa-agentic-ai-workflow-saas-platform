@@ -5,6 +5,7 @@ import { createLogger, initTracing } from '@quorvexa/observability';
 
 initTracing('workflow-service', '1.0.0');
 
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -24,6 +25,8 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   app.setGlobalPrefix('api');
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
