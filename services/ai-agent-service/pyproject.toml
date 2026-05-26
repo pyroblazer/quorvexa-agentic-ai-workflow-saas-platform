@@ -3,7 +3,7 @@ name = "ai-agent-service"
 version = "1.0.0"
 description = "Quorvexa AI Agent Service — LLM orchestration and agent execution"
 authors = ["Quorvexa Team"]
-readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"

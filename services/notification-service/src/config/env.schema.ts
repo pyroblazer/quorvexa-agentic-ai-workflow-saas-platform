@@ -15,5 +15,10 @@ export const envSchema = z.object({
   SMTP_PASS: z.string().optional(),
   EMAIL_FROM: z.string().default('noreply@quorvexa.dev'),
   SLACK_WEBHOOK_URL: z.string().optional(),
+  SLACK_APP_ID: z.string().optional(),
+  SLACK_CLIENT_ID: z.string().optional(),
+  SLACK_CLIENT_SECRET: z.string().optional(),
+  SLACK_SIGNING_SECRET: z.string().optional(),
+  SLACK_VERIFICATION_TOKEN: z.string().optional(),
   OTEL_EXPORTER_OTLP_ENDPOINT: z.string().default('http://localhost:4317'),
 });

@@ -1,0 +1,31 @@
+name: Keep Supabase DB Active
+
+on:
+  schedule:
+    # Run every 5 minutes to keep database active and prevent idle suspension
+    - cron: '*/5 * * * *'
+  workflow_dispatch: # Manual trigger option
+
+jobs:
+  ping-database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install pg dotenv
+
+      - name: Ping Supabase database
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL_PRODUCTION }}
+          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST_PRODUCTION }}
+        run: node scripts/keep-db-alive.js
+        timeout-minutes: 1

@@ -121,6 +121,38 @@ async function seed() {
     const demoUserId = userResult.rows[0].id;
     console.log(`  Demo user: ${DEMO_EMAIL} (${demoUserId})`);
 
+    // ── Create test users for scenarios ─────────────────────────────
+    const testUsers = [];
+    const testEmails = [
+      { email: 'test1@quorvexa.dev', role: 'member', name: 'Test One' },
+      { email: 'test2@quorvexa.dev', role: 'viewer', name: 'Test Two' },
+      { email: 'test-gmail@quorvexa.dev', role: 'admin', name: 'Test Gmail' },
+      { email: 'locked@quorvexa.dev', role: 'admin', name: 'Locked User', locked: true },
+    ];
+
+    for (const testUser of testEmails) {
+      const testPwHash = await argon2.hash('Test@1234!', {
+        type: argon2.argon2id,
+        memoryCost: 65536,
+        timeCost: 3,
+        parallelism: 4,
+      });
+
+      const lockedUntil = testUser.locked ? `NOW() + interval '1 hour'` : 'NULL';
+      const testResult = await pool.query(
+        `INSERT INTO users (email, "passwordHash", "firstName", "lastName", role, status, "tenantId", "emailVerifiedAt", "lockedUntil")
+         VALUES ($1, $2, $3, $4, $5, 'active', $6, NOW(), ${lockedUntil})
+         ON CONFLICT (email) DO UPDATE SET
+           "passwordHash"   = EXCLUDED."passwordHash",
+           role             = EXCLUDED.role,
+           "lockedUntil"    = ${lockedUntil}
+         RETURNING id, email`,
+        [testUser.email, testPwHash, testUser.name.split(' ')[0], testUser.name.split(' ')[1] || '', testUser.role, DEMO_TENANT],
+      );
+      testUsers.push({ ...testUser, id: testResult.rows[0].id });
+      console.log(`  Test user: ${testUser.email} (${testUser.role})`);
+    }
+
     // Also fetch admin user id for createdBy references
     const adminResult = await pool.query(
       `SELECT id FROM users WHERE email = $1`,
@@ -862,6 +894,186 @@ async function seed() {
             lastOutput: null, lastStatus: 'pending' },
         ],
       },
+
+      // ── TEST WORKFLOWS FOR 10 SCENARIOS ─────────────────────────────
+      // Scenario 1: Direct AI Agent (smoke test)
+      {
+        name: '[TEST] Direct AI Agent',
+        description: 'Scenario 1: Simple AI agent call with session memory',
+        status: 'active',
+        triggerType: 'manual',
+        metadata: { tags: ['test', 'scenario-1', 'ai-agent'] },
+        steps: [
+          { name: 'Run Agent', type: 'ai_agent', order: 0, maxRetries: 1, retryDelayMs: 0,
+            config: { prompt: 'What is 2+2? Explain step by step.', systemPrompt: 'You are a helpful math tutor.', maxIterations: 3 },
+            lastOutput: null, lastStatus: 'pending' },
+        ],
+      },
+
+      // Scenario 2: Email + AI
+      {
+        name: '[TEST] Email Report Generation',
+        description: 'Scenario 2: AI generates report, email delivers it',
+        status: 'active',
+        triggerType: 'manual',
+        metadata: { tags: ['test', 'scenario-2', 'email', 'ai-agent'] },
+        steps: [
+          { name: 'Generate Report', type: 'ai_agent', order: 0, maxRetries: 1, retryDelayMs: 0,
+            config: { prompt: 'Write 3-bullet executive summary of AI automation benefits for SaaS.', maxIterations: 5 },
+            lastOutput: null, lastStatus: 'pending' },
+          { name: 'Send Email', type: 'notification', order: 1, maxRetries: 3, retryDelayMs: 2000,
+            config: { channel: 'email', recipient: '{{trigger.email}}', subject: 'AI Report: SaaS Automation', body: '{{step_0.output}}' },
+            lastOutput: null, lastStatus: 'pending' },
+        ],
+      },
+
+      // Scenario 3: HTTP + AI + Email
+      {
+        name: '[TEST] Fetch Data & Summarize',
+        description: 'Scenario 3: Fetch HTTP data, AI summarizes, email delivers',
+        status: 'active',
+        triggerType: 'manual',
+        metadata: { tags: ['test', 'scenario-3', 'http', 'ai', 'email'] },
+        steps: [
+          { name: 'Fetch Data', type: 'http_request', order: 0, maxRetries: 2, retryDelayMs: 1000,
+            config: { url: 'https://jsonplaceholder.typicode.com/posts/1', method: 'GET', headers: {} },
+            lastOutput: null, lastStatus: 'pending' },
+          { name: 'AI Summarize', type: 'ai_agent', order: 1, maxRetries: 1, retryDelayMs: 0,
+            config: { prompt: 'Summarize this JSON post in 2 sentences: {{step_0.body}}', maxIterations: 3 },
+            lastOutput: null, lastStatus: 'pending' },
+          { name: 'Email Summary', type: 'notification', order: 2, maxRetries: 3, retryDelayMs: 1000,
+            config: { channel: 'email', recipient: '{{trigger.email}}', subject: 'Data Summary', body: '{{step_1.output}}' },
+            lastOutput: null, lastStatus: 'pending' },
+        ],
+      },
+
+      // Scenario 4: Conditional Branch
+      {
+        name: '[TEST] Sentiment Classification Branch',
+        description: 'Scenario 4: AI classifies sentiment, condition branches, email sent',
+        status: 'active',
+        triggerType: 'manual',
+        metadata: { tags: ['test', 'scenario-4', 'condition', 'branch'] },
+        steps: [
+          { name: 'Classify Sentiment', type: 'ai_agent', order: 0, maxRetries: 1, retryDelayMs: 0,
+            config: { prompt: 'Reply with ONE word only: positive or negative. Text: "I love this product!"', maxIterations: 2 },
+            lastOutput: null, lastStatus: 'pending' },
+          { name: 'Check Sentiment', type: 'condition', order: 1, maxRetries: 0, retryDelayMs: 0,
+            config: { condition: 'step_0.output', operator: 'contains', value: 'positive' },
+            lastOutput: null, lastStatus: 'pending' },
+          { name: 'Email Positive', type: 'notification', order: 2, maxRetries: 2, retryDelayMs: 1000,
+            config: { channel: 'email', recipient: '{{trigger.email}}', subject: 'Positive Feedback', body: 'Positive sentiment detected!' },
+            lastOutput: null, lastStatus: 'pending' },
+        ],
+      },
+
+      // Scenario 5: RAG Setup (embed + search test)
+      {
+        name: '[TEST] RAG Pipeline Setup',
+        description: 'Scenario 5: Placeholder for embed/search/grounded response tests',
+        status: 'active',
+        triggerType: 'manual',
+        metadata: { tags: ['test', 'scenario-5', 'rag', 'vector'] },
+        steps: [
+          { name: 'AI Query', type: 'ai_agent', order: 0, maxRetries: 1, retryDelayMs: 0,
+            config: { prompt: 'Based on Quorvexa knowledge, describe it in one sentence.' },
+            lastOutput: null, lastStatus: 'pending' },
+        ],
+      },
+
+      // Scenario 6: Template Render
+      {
+        name: '[TEST] Notification Template',
+        description: 'Scenario 6: Template creation, preview, email send',
+        status: 'active',
+        triggerType: 'manual',
+        metadata: { tags: ['test', 'scenario-6', 'template'] },
+        steps: [
+          { name: 'Build Payload', type: 'transform', order: 0, maxRetries: 0, retryDelayMs: 0,
+            config: { mapping: { title: 'trigger.reportTitle', content: 'trigger.reportContent' } },
+            lastOutput: null, lastStatus: 'pending' },
+          { name: 'Send Email', type: 'notification', order: 1, maxRetries: 3, retryDelayMs: 1000,
+            config: { channel: 'email', recipient: '{{trigger.email}}', subject: 'Report: {{step_0.title}}', body: '{{step_0.content}}' },
+            lastOutput: null, lastStatus: 'pending' },
+        ],
+      },
+
+      // Scenario 7: Webhook Notification
+      {
+        name: '[TEST] Webhook Delivery',
+        description: 'Scenario 7: Send notification to external webhook',
+        status: 'active',
+        triggerType: 'manual',
+        metadata: { tags: ['test', 'scenario-7', 'webhook'] },
+        steps: [
+          { name: 'Send Webhook', type: 'notification', order: 0, maxRetries: 2, retryDelayMs: 1000,
+            config: { channel: 'webhook', recipient: '{{trigger.webhookUrl}}', subject: 'Test', body: 'Webhook test from workflow' },
+            lastOutput: null, lastStatus: 'pending' },
+        ],
+      },
+
+      // Scenario 8: Retry & Failure
+      {
+        name: '[TEST] Retry & Failure Handling',
+        description: 'Scenario 8: Intentional failure to test retry logic',
+        status: 'active',
+        triggerType: 'manual',
+        metadata: { tags: ['test', 'scenario-8', 'retry', 'error'] },
+        steps: [
+          { name: 'Bad HTTP Request', type: 'http_request', order: 0, maxRetries: 2, retryDelayMs: 1000,
+            config: { url: 'https://httpbin.org/status/500', method: 'GET', headers: {} },
+            lastOutput: null, lastStatus: 'pending' },
+        ],
+      },
+
+      // Scenario 9: SSE Stream
+      {
+        name: '[TEST] SSE Stream Events',
+        description: 'Scenario 9: Workflow with delay for SSE event streaming',
+        status: 'active',
+        triggerType: 'manual',
+        metadata: { tags: ['test', 'scenario-9', 'sse', 'stream'] },
+        steps: [
+          { name: 'Start', type: 'transform', order: 0, maxRetries: 0, retryDelayMs: 0,
+            config: { mapping: { started: 'trigger.timestamp' } },
+            lastOutput: null, lastStatus: 'pending' },
+          { name: 'Wait', type: 'delay', order: 1, maxRetries: 0, retryDelayMs: 0,
+            config: { delayMs: 3000 },
+            lastOutput: null, lastStatus: 'pending' },
+          { name: 'Done', type: 'action', order: 2, maxRetries: 0, retryDelayMs: 0,
+            config: { action: 'log_completion' },
+            lastOutput: null, lastStatus: 'pending' },
+        ],
+      },
+
+      // Scenario 10: Full Pipeline
+      {
+        name: '[TEST] Full Agentic Pipeline',
+        description: 'Scenario 10: All step types - HTTP, AI, transform, condition, delay, email',
+        status: 'active',
+        triggerType: 'manual',
+        metadata: { tags: ['test', 'scenario-10', 'full-pipeline', 'all-steps'] },
+        steps: [
+          { name: 'Fetch GitHub', type: 'http_request', order: 0, maxRetries: 2, retryDelayMs: 1000,
+            config: { url: 'https://api.github.com/repos/vercel/next.js', method: 'GET', headers: {} },
+            lastOutput: null, lastStatus: 'pending' },
+          { name: 'AI Analysis', type: 'ai_agent', order: 1, maxRetries: 1, retryDelayMs: 0,
+            config: { prompt: 'Analyze this GitHub repo and write 3 key insights: {{step_0.body}}', maxIterations: 5 },
+            lastOutput: null, lastStatus: 'pending' },
+          { name: 'Extract Data', type: 'transform', order: 2, maxRetries: 0, retryDelayMs: 0,
+            config: { mapping: { insights: 'step_1.output', repoName: 'step_0.body.name' } },
+            lastOutput: null, lastStatus: 'pending' },
+          { name: 'Quality Check', type: 'condition', order: 3, maxRetries: 0, retryDelayMs: 0,
+            config: { condition: 'step_1.output', operator: 'contains', value: 'stars' },
+            lastOutput: null, lastStatus: 'pending' },
+          { name: 'Pause', type: 'delay', order: 4, maxRetries: 0, retryDelayMs: 0,
+            config: { delayMs: 2000 },
+            lastOutput: null, lastStatus: 'pending' },
+          { name: 'Send Results', type: 'notification', order: 5, maxRetries: 3, retryDelayMs: 2000,
+            config: { channel: 'email', recipient: '{{trigger.email}}', subject: 'Next.js Analysis', body: '{{step_2.insights}}' },
+            lastOutput: null, lastStatus: 'pending' },
+        ],
+      },
     ];
 
     // ── Insert all workflows ───────────────────────────────────────
@@ -916,7 +1128,7 @@ async function seed() {
         console.log(`  Workflow: "${wf.name}" (${wf.status}, ${wf.triggerType}) with ${wf.steps.length} steps`);
       }
     }
-    console.log(`  Total: ${workflows.length} workflows, ${totalSteps} steps`);
+    console.log(`  Total: ${workflows.length} workflows (18 reference + 10 test scenarios), ${totalSteps} steps`);
 
     // ── 7. Audit logs ───────────────────────────────────────────────
     const auditLogs = [
