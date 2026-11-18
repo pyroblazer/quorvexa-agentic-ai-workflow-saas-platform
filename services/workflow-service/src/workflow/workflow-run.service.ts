@@ -39,7 +39,28 @@ export class WorkflowRunService {
 
     const context: Record<string, unknown> = { trigger: payload };
 
-    for (const step of steps) {
+    // Branching execution: steps run in `order` unless a CONDITION step names a
+    // different next step (config.nextOnTrue / config.nextOnFalse hold the
+    // target step's `order`). Steps not on the taken path are simply skipped.
+    const orderByOrder = new Map(steps.map((s) => [s.order, s]));
+    const MAX_EXECUTED = steps.length * 2 + 8; // cycle guard for backward jumps
+    let executed = 0;
+
+    let cursor: WorkflowStepEntity | undefined = steps[0];
+    while (cursor) {
+      if (++executed > MAX_EXECUTED) {
+        const errorOutput = { error: 'Workflow exceeded the maximum number of step executions (possible branch cycle)' };
+        results.push({ stepId: cursor.id, status: StepStatus.FAILED, output: errorOutput });
+        await this.stepRepo.update(cursor.id, {
+          lastStatus: StepStatus.FAILED,
+          lastOutput: errorOutput as any,
+        });
+        this.logger.error({ workflowId: workflow.id }, 'Branch cycle detected');
+        cursor = undefined;
+        break;
+      }
+
+      const step = cursor;
       const maxAttempts = (step.maxRetries ?? 3) + 1;
       let lastError: Error | null = null;
       let output: Record<string, unknown> | null = null;
@@ -79,6 +100,31 @@ export class WorkflowRunService {
         lastStatus: StepStatus.COMPLETED,
         lastOutput: output as any,
       });
+
+      // Pick the next step: a CONDITION with branch targets jumps, everything
+      // else (and conditions without targets) continues in `order`.
+      let nextOrder: number | undefined;
+      if (step.type === StepType.CONDITION) {
+        const branch = (output as Record<string, unknown>)['branch'];
+        const target = branch === 'true' ? step.config['nextOnTrue'] : step.config['nextOnFalse'];
+        if (target !== undefined && target !== null) {
+          nextOrder = Number(target);
+          if (!orderByOrder.has(nextOrder)) {
+            const errorOutput = { error: `Branch target order ${nextOrder} not found` };
+            results.push({ stepId: step.id, status: StepStatus.FAILED, output: errorOutput });
+            await this.stepRepo.update(step.id, {
+              lastStatus: StepStatus.FAILED,
+              lastOutput: errorOutput as any,
+            });
+            this.logger.error({ stepId: step.id }, 'Branch target missing');
+            break;
+          }
+        }
+      }
+
+      cursor = nextOrder !== undefined
+        ? orderByOrder.get(nextOrder)
+        : steps.find((s) => s.order > step.order);
     }
 
     const success = results.every((r) => r.status === StepStatus.COMPLETED);
