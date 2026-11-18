@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { createLogger } from '@quorvexa/observability';
 import { Repository } from 'typeorm';
 
+import { assertSafeOutboundUrl } from './url-guard';
 import { WorkflowStepEntity, StepStatus, StepType } from './entities/workflow-step.entity';
 import { WorkflowEntity } from './entities/workflow.entity';
 
@@ -15,6 +16,9 @@ export interface WorkflowRunResult {
   steps: Array<{ stepId: string; status: StepStatus; output: Record<string, unknown> | null }>;
   success: boolean;
 }
+
+const HTTP_STEP_TIMEOUT_MS = 10_000;
+const MAX_DELAY_MS = 30_000; // longer waits need a queue-backed delayed job, not an in-request sleep
 
 @Injectable()
 export class WorkflowRunService {
@@ -174,17 +178,23 @@ export class WorkflowRunService {
       body?: unknown;
     };
 
-    const response = await fetch(url, {
+    const safeUrl = await assertSafeOutboundUrl(url);
+
+    const response = await fetch(safeUrl, {
       method,
       headers: { 'Content-Type': 'application/json', ...headers },
       body: body ? JSON.stringify(body) : undefined,
+      redirect: 'manual', // a redirect could point at an internal address
+      signal: AbortSignal.timeout(HTTP_STEP_TIMEOUT_MS),
     });
 
+    // Read the body once, then try to parse it (a consumed body cannot be re-read)
+    const rawBody = await response.text();
     let responseBody: unknown;
     try {
-      responseBody = await response.json();
+      responseBody = JSON.parse(rawBody);
     } catch {
-      responseBody = await response.text();
+      responseBody = rawBody;
     }
 
     return { status: response.status, body: responseBody };
@@ -219,7 +229,8 @@ export class WorkflowRunService {
   }
 
   private async delay(step: WorkflowStepEntity): Promise<Record<string, unknown>> {
-    const ms = (step.config['delayMs'] as number) ?? 1000;
+    const requested = Number(step.config['delayMs'] ?? 1000);
+    const ms = Math.min(Math.max(Number.isFinite(requested) ? requested : 1000, 0), MAX_DELAY_MS);
     await new Promise((resolve) => setTimeout(resolve, ms));
     return { delayed: ms };
   }

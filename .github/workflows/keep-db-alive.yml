@@ -2,8 +2,8 @@ name: Keep Supabase DB Active
 
 on:
   schedule:
-    # Run every 5 minutes to keep database active and prevent idle suspension
-    - cron: '*/5 * * * *'
+    # Supabase pauses projects after 7 days of inactivity; twice a day is plenty
+    - cron: '0 */12 * * *'
   workflow_dispatch: # Manual trigger option
 
 jobs:
@@ -18,14 +18,18 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'
 
       - name: Install dependencies
-        run: npm install pg dotenv
+        # Install outside the pnpm workspace root (npm cannot resolve `workspace:` deps there)
+        run: |
+          mkdir -p "$RUNNER_TEMP/ping" && cd "$RUNNER_TEMP/ping"
+          npm init -y >/dev/null
+          npm install pg dotenv --no-audit --no-fund
 
       - name: Ping Supabase database
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL_PRODUCTION }}
           POSTGRES_HOST: ${{ secrets.POSTGRES_HOST_PRODUCTION }}
-        run: node scripts/keep-db-alive.js
+        run: NODE_PATH="$RUNNER_TEMP/ping/node_modules" node scripts/keep-db-alive.js
         timeout-minutes: 1

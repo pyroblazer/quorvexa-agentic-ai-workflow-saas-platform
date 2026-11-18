@@ -89,3 +89,8 @@ packages/*/src/**/*.js.map
 packages/*/src/**/*.d.ts
 
 .vercel
+
+# Test artifacts
+.coverage
+coverage.xml
+*.tsbuildinfo
