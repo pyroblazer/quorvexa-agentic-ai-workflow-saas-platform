@@ -1,6 +1,6 @@
-import { WorkflowRunService } from './workflow-run.service';
 import { WorkflowStepEntity, StepStatus, StepType } from './entities/workflow-step.entity';
 import { WorkflowEntity } from './entities/workflow.entity';
+import { WorkflowRunService } from './workflow-run.service';
 
 const makeStep = (order: number, type: StepType, config: Record<string, unknown> = {}) =>
   ({ id: `s${order}`, order, type, config, maxRetries: 0 }) as unknown as WorkflowStepEntity;

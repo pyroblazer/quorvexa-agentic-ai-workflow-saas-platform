@@ -6,9 +6,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { createLogger } from '@quorvexa/observability';
 import { Repository } from 'typeorm';
 
-import { assertSafeOutboundUrl } from './url-guard';
 import { WorkflowStepEntity, StepStatus, StepType } from './entities/workflow-step.entity';
 import { WorkflowEntity } from './entities/workflow.entity';
+import { assertSafeOutboundUrl } from './url-guard';
 
 export interface WorkflowRunResult {
   workflowId: string;
