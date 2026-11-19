@@ -60,7 +60,7 @@ export class WorkflowRunService {
         break;
       }
 
-      const step = cursor;
+      const step: WorkflowStepEntity = cursor;
       const maxAttempts = (step.maxRetries ?? 3) + 1;
       let lastError: Error | null = null;
       let output: Record<string, unknown> | null = null;
@@ -106,7 +106,7 @@ export class WorkflowRunService {
       let nextOrder: number | undefined;
       if (step.type === StepType.CONDITION) {
         const branch = (output as Record<string, unknown>)['branch'];
-        const target = branch === 'true' ? step.config['nextOnTrue'] : step.config['nextOnFalse'];
+        const target: unknown = branch === 'true' ? step.config['nextOnTrue'] : step.config['nextOnFalse'];
         if (target !== undefined && target !== null) {
           nextOrder = Number(target);
           if (!orderByOrder.has(nextOrder)) {

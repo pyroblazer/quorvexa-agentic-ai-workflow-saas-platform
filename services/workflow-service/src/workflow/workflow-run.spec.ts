@@ -28,7 +28,7 @@ describe('WorkflowRunService branching', () => {
     expect(result.steps.map((s) => s.stepId)).toEqual(['s1', 's2', 's3']);
   });
 
-  it('follows nextOnTrue and skips the untaken path', async () => {
+  it('jumps to nextOnTrue, skipping steps in between, then continues in order', async () => {
     const wf = makeWorkflow([
       makeStep(1, StepType.CONDITION, { condition: 'trigger.go', nextOnTrue: 3, nextOnFalse: 4 }),
       makeStep(2, StepType.ACTION), // on neither path: must never run
@@ -39,7 +39,7 @@ describe('WorkflowRunService branching', () => {
     const result = await service.execute(wf, { go: true });
 
     expect(result.success).toBe(true);
-    expect(result.steps.map((s) => s.stepId)).toEqual(['s1', 's3']);
+    expect(result.steps.map((s) => s.stepId)).toEqual(['s1', 's3', 's4']);
   });
 
   it('follows nextOnFalse when the condition is false', async () => {
